@@ -2,11 +2,10 @@ package cli
 
 import (
 	"fmt"
+	"github.com/kintohub/kinto-cli-go/internal/config"
 	"github.com/kintohub/kinto-cli-go/internal/controller"
-	"github.com/kintohub/kinto-cli-go/internal/utils"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"os"
 )
 
@@ -50,20 +49,11 @@ func initConfig() {
 
 	// Search config in home directory with name "kinto.yaml"
 	const configName = "kinto.yaml"
-	viper.AddConfigPath(home)
-	viper.SetConfigName(configName)
-	viper.SetConfigType("yaml")
-	viper.AutomaticEnv()
-	if err := viper.ReadInConfig(); err != nil {
-		// Create new config file
-		err := viper.WriteConfigAs(fmt.Sprintf("%s/%s",
-			home,
-			configName,
-		))
-		if err != nil {
-			utils.TerminateWithError(err)
-		}
-	}
+	config.AddConfigPath(home)
+	config.SetConfigName(configName)
+	config.SetConfigType("yaml")
+	config.AutomaticEnv()
+	config.CreateConfig(home,configName)
 }
 
 func (c *Cli) Execute() {
