@@ -6,5 +6,6 @@ import (
 )
 
 func (c Controller) Version() {
+
 	fmt.Printf("Kinto Command Line Interface (CLI) %s", config.Version)
 }
