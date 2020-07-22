@@ -11,7 +11,6 @@ type ControllerInterface interface {
 	Register()
 	Login()
 	Version()
-
 }
 
 type Controller struct {
@@ -20,8 +19,17 @@ type Controller struct {
 }
 
 func InitControllerOrDie() ControllerInterface {
+
+	// Can't find a valid way to make MasterKintoHost as a flag parameter since Controller
+	// is initialized before CLI
+
+	// TODO : Make MasterKintoHost as flag parameter
 	return &Controller{
-		authClient:     enterpriseTypes.NewAuthServiceClient(utilsGrpc.CreateConnectionOrDie(config.KintoMasterHost, true)),
-		clustersClient: enterpriseTypes.NewClusterServiceClient(utilsGrpc.CreateConnectionOrDie(config.KintoMasterHost, true)),
+		authClient: enterpriseTypes.
+			NewAuthServiceClient(utilsGrpc.CreateConnectionOrDie(config.KintoMasterHost,
+				true)),
+		clustersClient: enterpriseTypes.
+			NewClusterServiceClient(utilsGrpc.CreateConnectionOrDie(config.KintoMasterHost,
+				true)),
 	}
 }
