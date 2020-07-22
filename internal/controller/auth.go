@@ -7,7 +7,6 @@ import (
 	"github.com/kintohub/kinto-cli-go/internal/config"
 	"github.com/kintohub/kinto-cli-go/internal/utils"
 	"github.com/kintohub/kinto-enterprise/pkg/types"
-	"github.com/spf13/viper"
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"strings"
@@ -15,8 +14,8 @@ import (
 
 func (c *Controller) Init() {
 
-	email := viper.GetString("email")
-	token := viper.GetString("authToken")
+	email := config.GetString("email")
+	token := config.GetString("authToken")
 
 	if email == "" || token == "" {
 		color.Red.Printf("\nPlease log-in into your account first\n")
@@ -30,9 +29,9 @@ func (c *Controller) Init() {
 			if err != nil {
 				color.Red.Println(err)
 			}
-			color.Green.Printf("\nRepo initialised\n")
+			color.Green.Printf("\nRepo initialized\n")
 		} else {
-			color.Red.Printf("\nRepo is already initialised\n")
+			color.Red.Printf("\nRepo is already initialized\n")
 		}
 	}
 }
@@ -63,7 +62,7 @@ func (c *Controller) Register() {
 	} else {
 		config.SetAuthToken(resp.Token)
 		config.SetEmail(email)
-		viper.WriteConfig()
+		config.WriteConfig()
 		color.Green.Printf("\nRegistered successfully with %s\n",
 			strings.TrimSpace(email),
 		)
@@ -95,15 +94,15 @@ func (c *Controller) Login() {
 	if err != nil {
 		utils.TerminateWithError(err)
 	} else {
-		email := viper.GetString("email")
+		email := config.GetString("email")
 
 		if email == loginEmail {
-			color.Red.Printf("\nAlready logged in with %s\n", viper.GetString("email"))
+			color.Red.Printf("\nAlready logged in with %s\n", config.GetString("email"))
 		} else {
 
 			config.SetAuthToken(resp.Token)
 			config.SetEmail(loginEmail)
-			viper.WriteConfig()
+			config.WriteConfig()
 			color.Green.Printf("\nLogged in successfully with %s\n",
 				strings.TrimSpace(loginEmail),
 			)
