@@ -1,11 +1,11 @@
 package utils
 
 import (
-	"fmt"
 	"os"
+	"github.com/gookit/color"
 )
 
 func TerminateWithError(err error) {
-	fmt.Printf("an error occurred %v", err)
+	color.Red.Printf("\nan error occurred %v\n", err)
 	os.Exit(1)
 }

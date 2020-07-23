@@ -2,10 +2,10 @@ package cli
 
 import (
 	"fmt"
+	"github.com/kintohub/kinto-cli-go/internal/config"
 	"github.com/kintohub/kinto-cli-go/internal/controller"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"os"
 )
 
@@ -30,7 +30,8 @@ func NewCliOrDie(controller controller.ControllerInterface) CliInterface {
 	rootCmd.AddCommand(
 		createVersionCommand(controller),
 		createInitCommand(controller),
-		createLogoutCommand(controller),
+		createRegisterCommand(controller),
+		createLoginCommand(controller),
 	)
 
 	return &Cli{
@@ -46,15 +47,13 @@ func initConfig() {
 		os.Exit(1)
 	}
 
-	// Search config in home directory with name ".cobra" (without extension).
-	viper.AddConfigPath(home)
-	viper.SetConfigName(".kintocli")
-
-	viper.AutomaticEnv()
-
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("using config file:", viper.ConfigFileUsed())
-	}
+	// Search config in home directory with name "kinto.yaml"
+	const configName = "kinto.yaml"
+	config.AddConfigPath(home)
+	config.SetConfigName(configName)
+	config.SetConfigType("yaml")
+	config.AutomaticEnv()
+	config.CreateConfig(home,configName)
 }
 
 func (c *Cli) Execute() {
@@ -68,31 +67,45 @@ func createInitCommand(controller controller.ControllerInterface) *cobra.Command
 	return &cobra.Command{
 		Use:   "init",
 		Short: "Login or registers to KintoHub",
-		Long:  `Helps create a new kintohub account`,
+		Long:  `Helps create a new KintoHub account`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Init()
 		},
 	}
 }
 
-func createLogoutCommand(controller controller.ControllerInterface) *cobra.Command {
+func createRegisterCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
-		Use:   "logout",
-		Short: "initializes the git repository for kintohub",
-		Long:  `Authenticates to KintoHub and detects or creates a .kinto file`,
+		Use:   "register",
+		Short: "Creates a new account on KintoHub",
+		Long:  `Helps create a new kintoHub account`,
 		Run: func(cmd *cobra.Command, args []string) {
-			controller.Logout()
+			controller.Register()
 		},
 	}
 }
 
+func createLoginCommand(controller controller.ControllerInterface) *cobra.Command {
+	return &cobra.Command{
+		Use:   "login",
+		Short: "Log in an existing KintoHub account",
+		Long:  `Helps you to log in an already existing KintoHub account`,
+		Run: func(cmd *cobra.Command, args []string) {
+			controller.Login()
+		},
+	}
+}
+
+
 func createVersionCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
-		Short: "Print the version number of Kinto CLI",
+		Short: "Prints the version number of Kinto CLI",
 		Long:  `All software has versions. This is Kinto's!`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Version()
 		},
 	}
 }
+
+
