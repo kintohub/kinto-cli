@@ -10,6 +10,7 @@ type ControllerInterface interface {
 	Init()
 	Register()
 	Login()
+	Environment()
 	Version()
 }
 

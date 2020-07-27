@@ -32,12 +32,14 @@ func NewCliOrDie(controller controller.ControllerInterface) CliInterface {
 		createInitCommand(controller),
 		createRegisterCommand(controller),
 		createLoginCommand(controller),
+		createEnvironmentCommand(controller),
 	)
 
 	return &Cli{
 		rootCmd: rootCmd,
 	}
 }
+
 
 func initConfig() {
 	// Find home directory.
@@ -96,7 +98,6 @@ func createLoginCommand(controller controller.ControllerInterface) *cobra.Comman
 	}
 }
 
-
 func createVersionCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
@@ -108,4 +109,13 @@ func createVersionCommand(controller controller.ControllerInterface) *cobra.Comm
 	}
 }
 
-
+func createEnvironmentCommand(controller controller.ControllerInterface) *cobra.Command {
+	return &cobra.Command{
+		Use:   "env",
+		Short: "List all the Environment ID names and their regions",
+		Long:  `Get a list of all the Environment ID names and their regions`,
+		Run: func(cmd *cobra.Command, args []string) {
+			controller.Environment()
+		},
+	}
+}
