@@ -2,11 +2,9 @@ package controller
 
 import (
 	"bufio"
-	"context"
 	"github.com/gookit/color"
 	"github.com/kintohub/kinto-cli-go/internal/config"
 	"github.com/kintohub/kinto-cli-go/internal/utils"
-	"github.com/kintohub/kinto-enterprise/pkg/types"
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"strings"
@@ -53,14 +51,15 @@ func (c *Controller) Register() {
 		utils.TerminateWithError(err)
 	}
 
-	resp, err := c.authClient.Register(context.Background(),
-		&types.RegisterRequest{Email: strings.TrimSpace(email),
-			Password: strings.TrimSpace(string(passwordBytes))})
+	authToken, err := c.api.Register(
+		strings.TrimSpace(email),
+		strings.TrimSpace(string(passwordBytes)),
+	)
 
 	if err != nil {
 		utils.TerminateWithError(err)
 	} else {
-		config.SetAuthToken(resp.Token)
+		config.SetAuthToken(authToken)
 		config.SetEmail(email)
 		config.Save()
 		color.Green.Printf("\nRegistered successfully with %s\n",
@@ -70,7 +69,6 @@ func (c *Controller) Register() {
 }
 
 func (c *Controller) Login() {
-
 	color.Gray.Printf("\nEmail address: ")
 	reader := bufio.NewReader(os.Stdin)
 
@@ -87,9 +85,10 @@ func (c *Controller) Login() {
 		utils.TerminateWithError(err)
 	}
 
-	resp, err := c.authClient.Login(context.Background(),
-		&types.LoginRequest{Email: strings.TrimSpace(loginEmail),
-			Password: strings.TrimSpace(string(passwordBytes))})
+	authToken, err := c.api.Login(
+		strings.TrimSpace(loginEmail),
+		strings.TrimSpace(string(passwordBytes)),
+	)
 
 	if err != nil {
 		utils.TerminateWithError(err)
@@ -99,8 +98,7 @@ func (c *Controller) Login() {
 		if email == loginEmail {
 			color.Red.Printf("\nAlready logged in with %s\n", config.GetString("email"))
 		} else {
-
-			config.SetAuthToken(resp.Token)
+			config.SetAuthToken(authToken)
 			config.SetEmail(loginEmail)
 			config.Save()
 			color.Green.Printf("\nLogged in successfully with %s\n",
