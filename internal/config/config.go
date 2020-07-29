@@ -8,10 +8,11 @@ import (
 )
 
 const (
-	Version           = "v0.1"
-	authTokenKey      = "authToken"
-	emailKey          = "emailKey"
-	publicClustersKey = "publicClusters"
+	Version                = "v0.1"
+	authTokenKey           = "authToken"
+	emailKey               = "emailKey"
+	publicClustersKey      = "publicClusters"
+	clusterEnvironmentsKey = "clusterEnvironments"
 )
 
 func AddConfigPath(path string) {
@@ -68,21 +69,43 @@ func SetEmail(email string) {
 }
 
 func SetPublicClusters(publicClusters []*enterpriseTypes.PublicClusterInfo) {
-	m := map[string]interface{}{}
+	publicClustersMap := map[string]interface{}{}
 
 	for _, publicCluster := range publicClusters {
-		m[publicCluster.Id] = publicCluster
+		publicClustersMap[publicCluster.Id] = publicCluster
 	}
 
-	viper.Set(publicClustersKey, publicClusters)
+	viper.Set(publicClustersKey, publicClustersMap)
 }
 
 func GetPublicClusterInfo(clusterId string) *enterpriseTypes.PublicClusterInfo {
-	v := viper.GetStringMap(publicClustersKey)
+	publicClustersMap := viper.GetStringMap(publicClustersKey)
 
-	if v != nil {
-		if publicCluster, ok := v[clusterId]; ok {
+	if publicClustersMap != nil {
+		if publicCluster, ok := publicClustersMap[clusterId]; ok {
 			return publicCluster.(*enterpriseTypes.PublicClusterInfo)
+		}
+	}
+
+	return nil
+}
+
+func SetClusterEnvironments(clusterEnvs []*enterpriseTypes.ClusterEnvironment) {
+	clusterEnvironmentsMap := map[string]interface{}{}
+
+	for _, clusterEnv := range clusterEnvs {
+		clusterEnvironmentsMap[clusterEnv.Id] = clusterEnv
+	}
+
+	viper.Set(publicClustersKey, clusterEnvironmentsMap)
+}
+
+func GetClusterEnvironment(envId string) *enterpriseTypes.ClusterEnvironment {
+	clusterEnvironmentsMap := viper.GetStringMap(clusterEnvironmentsKey)
+
+	if clusterEnvironmentsMap != nil {
+		if clusterEnv, ok := clusterEnvironmentsMap[envId]; ok {
+			return clusterEnv.(*enterpriseTypes.ClusterEnvironment)
 		}
 	}
 

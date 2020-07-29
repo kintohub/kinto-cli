@@ -10,6 +10,7 @@ type ControllerInterface interface {
 	Login()
 	Environment()
 	Version()
+	Services(envId string)
 }
 
 type Controller struct {

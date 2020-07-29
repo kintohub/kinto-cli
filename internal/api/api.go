@@ -21,6 +21,7 @@ type ApiInterface interface {
 	GetClusters() ([]*enterpriseTypes.PublicClusterInfo, error)
 	Register(email, password string) (string, error)
 	Login(email, password string) (string, error)
+	GetBlocks(envId string) ([]*kkcTypes.Block, error)
 }
 
 // Due to the nature of APIs,
@@ -38,10 +39,11 @@ func NewApiOrDie(masterHost string) ApiInterface {
 			NewAuthServiceClient(utilsGrpc.CreateConnectionOrDie(masterHost, true)),
 		clusterClient: enterpriseTypes.
 			NewClusterServiceClient(utilsGrpc.CreateConnectionOrDie(masterHost, true)),
+		kubeCoreServiceClients: map[string]kkcTypes.KintoKubeCoreServiceClient{},
 	}
 }
 
-func (a *Api) getKubeCoreService(clusterId string) kkcTypes.KintoKubeCoreServiceClient {
+func (a *Api) getKubeCoreService(clusterId, envId string) kkcTypes.KintoKubeCoreServiceClient {
 	publicCluster, err := a.GetPublicClusterInfo(clusterId)
 
 	if err != nil {
@@ -51,27 +53,36 @@ func (a *Api) getKubeCoreService(clusterId string) kkcTypes.KintoKubeCoreService
 	if service, ok := a.kubeCoreServiceClients[publicCluster.Id]; ok {
 		return service
 	} else {
-		client := createKintoKubeCoreClientOrDie(publicCluster.HostName)
+		client := createKintoKubeCoreClientOrDie(
+			a.clusterClient,
+			publicCluster,
+			envId,
+		)
+
 		a.kubeCoreServiceClients[publicCluster.Id] = client
 		return client
 	}
 }
 
 // TODO: Refactor kinto go commons to accept 3rd party dial options optionally
-func createKintoKubeCoreClientOrDie(clusterHost string) kkcTypes.KintoKubeCoreServiceClient {
-	dialOption := grpc.WithInsecure()
-
+func createKintoKubeCoreClientOrDie(
+	clustersClient enterpriseTypes.ClusterServiceClient,
+	cluster *enterpriseTypes.PublicClusterInfo,
+	envId string) kkcTypes.KintoKubeCoreServiceClient {
 	// https://grpc.io/docs/guides/auth/#authenticate-with-google
 	pool, _ := x509.SystemCertPool()
 	creds := credentials.NewClientTLSFromCert(pool, "")
-	dialOption = grpc.WithTransportCredentials(creds)
+	dialOption := grpc.WithTransportCredentials(creds)
 
 	conn, err := grpc.Dial(
-		clusterHost,
-		dialOption,
+		cluster.HostName+":443",
 		grpc.WithPerRPCCredentials(&accessTokenManager{
-			authToken: config.GetAuthToken(),
+			envId:          envId,
+			clusterId:      cluster.Id,
+			authToken:      config.GetAuthToken(),
+			clustersClient: clustersClient,
 		}),
+		dialOption,
 	)
 
 	if err != nil {

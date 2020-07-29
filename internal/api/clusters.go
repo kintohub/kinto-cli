@@ -8,8 +8,30 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+func (a *Api) GetClusterEnvironment(envId string) (*enterpriseTypes.ClusterEnvironment, error) {
+	env := config.GetClusterEnvironment(envId)
+
+	if env == nil {
+		envs, err := a.GetClusterEnvironments()
+
+		if err != nil {
+			return nil, err
+		}
+
+		for _, env := range envs {
+			if env.Id == envId {
+				return env, nil
+			}
+		}
+
+		return nil, NotFoundError
+	}
+
+	return env, nil
+}
+
 func (a *Api) GetClusterEnvironments() ([]*enterpriseTypes.ClusterEnvironment, error) {
-	bearer := "Bearer " + config.GetString("authToken")
+	bearer := "Bearer " + config.GetAuthToken()
 	md := metadata.Pairs("Authorization", bearer)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
 
@@ -23,7 +45,6 @@ func (a *Api) GetClusterEnvironments() ([]*enterpriseTypes.ClusterEnvironment, e
 }
 
 func (a *Api) GetClusters() ([]*enterpriseTypes.PublicClusterInfo, error) {
-
 	resp, err := a.clusterClient.GetClusters(context.Background(), &empty.Empty{})
 
 	if err != nil {
@@ -50,7 +71,9 @@ func (a *Api) GetPublicClusterInfo(clusterId string) (*enterpriseTypes.PublicClu
 				return cluster, nil
 			}
 		}
+
+		return nil, NotFoundError
 	}
 
-	return nil, NotFoundError
+	return publicClusterInfo, nil
 }

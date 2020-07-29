@@ -71,6 +71,7 @@ func (c *Cli) Execute(controller controller.ControllerInterface) {
 		createRegisterCommand(controller),
 		createLoginCommand(controller),
 		createEnvironmentCommand(controller),
+		createServicesCommand(controller),
 	)
 
 	if err := c.rootCmd.Execute(); err != nil {
@@ -119,6 +120,24 @@ func createEnvironmentCommand(controller controller.ControllerInterface) *cobra.
 		Long:  `Get a list of all the Environment ID names and their regions`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Environment()
+		},
+	}
+}
+
+func createServicesCommand(controller controller.ControllerInterface) *cobra.Command {
+	return &cobra.Command{
+		Use:   "svs",
+		Short: "List services",
+		Long:  `Get a list of all services within a n environment`,
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) != 1 {
+				return errors.New("requires envId argument")
+			}
+
+			return nil
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			controller.Services(args[0])
 		},
 	}
 }

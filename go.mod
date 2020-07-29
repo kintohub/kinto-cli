@@ -12,6 +12,7 @@ require (
 	github.com/kintohub/utils-go v0.2.3-0.20200616025156-c64df278ad95
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/olekukonko/tablewriter v0.0.0-20170122224234-a0225b3f23b5
+	github.com/rs/zerolog v1.18.0
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.0
 	golang.org/x/crypto v0.0.0-20200707235045-ab33eee955e0

@@ -10,7 +10,6 @@ import (
 )
 
 func (c *Controller) Environment() {
-
 	envs, err := c.api.GetClusterEnvironments()
 	clusters, err := c.api.GetClusters()
 
@@ -45,5 +44,4 @@ func (c *Controller) Environment() {
 		}
 
 	}
-
 }
