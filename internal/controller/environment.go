@@ -1,26 +1,18 @@
 package controller
 
 import (
-	"github.com/docker/distribution/context"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/gookit/color"
-	"github.com/kintohub/kinto-cli-go/internal/config"
 	"github.com/kintohub/kinto-cli-go/internal/utils"
 	"github.com/olekukonko/tablewriter"
 	"os"
 
 	_ "github.com/olekukonko/tablewriter"
-	"google.golang.org/grpc/metadata"
 )
 
 func (c *Controller) Environment() {
 
-	bearer := "Bearer " + config.GetString("authToken")
-	md := metadata.Pairs("Authorization", bearer)
-	ctx := metadata.NewOutgoingContext(context.Background(), md)
-
-	env, err := c.clustersClient.GetClusterEnvironments(ctx, &empty.Empty{})
-	clusters, err := c.clustersClient.GetClusters(ctx, &empty.Empty{})
+	envs, err := c.api.GetClusterEnvironments()
+	clusters, err := c.api.GetClusters()
 
 	if err != nil {
 		utils.TerminateWithError(err)
@@ -28,7 +20,7 @@ func (c *Controller) Environment() {
 
 		clusterDetail := make(map[string]string)
 
-		for _, c := range clusters.Clusters {
+		for _, c := range clusters {
 			clusterDetail[c.Id] = c.DisplayName
 		}
 		table := tablewriter.NewWriter(os.Stdout)
@@ -37,7 +29,8 @@ func (c *Controller) Environment() {
 			"Name",
 			"Region",
 		})
-		for _, c := range env.Envs {
+
+		for _, c := range envs {
 			table.Append([]string{
 				c.Id,
 				c.Name,
@@ -45,7 +38,7 @@ func (c *Controller) Environment() {
 			})
 		}
 
-		if len(env.GetEnvs()) != 0 {
+		if len(envs) != 0 {
 			table.Render()
 		} else {
 			color.Red.Printf("\nNo environment/s found!\n")

@@ -3,15 +3,16 @@ package config
 import (
 	"fmt"
 	"github.com/kintohub/kinto-cli-go/internal/utils"
+	enterpriseTypes "github.com/kintohub/kinto-enterprise/pkg/types"
 	"github.com/spf13/viper"
 )
 
 const (
-	Version = "v0.1"
-	KintoMasterHost = "master.vegeta.kintohub.net:443"
+	Version           = "v0.1"
+	authTokenKey      = "authToken"
+	emailKey          = "emailKey"
+	publicClustersKey = "publicClusters"
 )
-
-
 
 func AddConfigPath(path string) {
 	viper.AddConfigPath(path)
@@ -55,9 +56,35 @@ func GetString(string string) string {
 }
 
 func SetAuthToken(token string) {
-	viper.Set("authToken", token)
+	viper.Set(authTokenKey, token)
+}
+
+func GetAuthToken() string {
+	return viper.GetString(authTokenKey)
 }
 
 func SetEmail(email string) {
-	viper.Set("email", email)
+	viper.Set(emailKey, email)
+}
+
+func SetPublicClusters(publicClusters []*enterpriseTypes.PublicClusterInfo) {
+	m := map[string]interface{}{}
+
+	for _, publicCluster := range publicClusters {
+		m[publicCluster.Id] = publicCluster
+	}
+
+	viper.Set(publicClustersKey, publicClusters)
+}
+
+func GetPublicClusterInfo(clusterId string) *enterpriseTypes.PublicClusterInfo {
+	v := viper.GetStringMap(publicClustersKey)
+
+	if v != nil {
+		if publicCluster, ok := v[clusterId]; ok {
+			return publicCluster.(*enterpriseTypes.PublicClusterInfo)
+		}
+	}
+
+	return nil
 }

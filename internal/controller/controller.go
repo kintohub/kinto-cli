@@ -1,9 +1,7 @@
 package controller
 
 import (
-	"github.com/kintohub/kinto-cli-go/internal/config"
-	enterpriseTypes "github.com/kintohub/kinto-enterprise/pkg/types"
-	utilsGrpc "github.com/kintohub/utils-go/server/grpc"
+	"github.com/kintohub/kinto-cli-go/internal/api"
 )
 
 type ControllerInterface interface {
@@ -15,22 +13,11 @@ type ControllerInterface interface {
 }
 
 type Controller struct {
-	authClient     enterpriseTypes.AuthServiceClient
-	clustersClient enterpriseTypes.ClusterServiceClient
+	api api.ApiInterface
 }
 
-func InitControllerOrDie() ControllerInterface {
-
-	// Can't find a valid way to make MasterKintoHost as a flag parameter since Controller
-	// is initialized before CLI
-
-	// TODO : Make MasterKintoHost as flag parameter
+func NewControllerOrDie(api api.ApiInterface) ControllerInterface {
 	return &Controller{
-		authClient: enterpriseTypes.
-			NewAuthServiceClient(utilsGrpc.CreateConnectionOrDie(config.KintoMasterHost,
-				true)),
-		clustersClient: enterpriseTypes.
-			NewClusterServiceClient(utilsGrpc.CreateConnectionOrDie(config.KintoMasterHost,
-				true)),
+		api: api,
 	}
 }

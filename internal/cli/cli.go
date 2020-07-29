@@ -1,23 +1,26 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"github.com/kintohub/kinto-cli-go/internal/config"
 	"github.com/kintohub/kinto-cli-go/internal/controller"
+	"github.com/kintohub/kinto-cli-go/internal/utils"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"os"
 )
 
 type CliInterface interface {
-	Execute()
+	GetHostFlag() string
+	Execute(controller controller.ControllerInterface)
 }
 
 type Cli struct {
 	rootCmd *cobra.Command
 }
 
-func NewCliOrDie(controller controller.ControllerInterface) CliInterface {
+func NewCliOrDie() CliInterface {
 	cobra.OnInitialize(initConfig)
 
 	var rootCmd = &cobra.Command{
@@ -27,19 +30,23 @@ func NewCliOrDie(controller controller.ControllerInterface) CliInterface {
                Documentation is available at https://docs.kintohub.com`,
 	}
 
-	rootCmd.AddCommand(
-		createVersionCommand(controller),
-		createInitCommand(controller),
-		createRegisterCommand(controller),
-		createLoginCommand(controller),
-		createEnvironmentCommand(controller),
-	)
+	rootCmd.PersistentFlags().StringP(
+		"host", "", "master.vegeta.kintohub.net:443", "target kintohub host")
 
 	return &Cli{
 		rootCmd: rootCmd,
 	}
 }
 
+func (c *Cli) GetHostFlag() string {
+	host := c.rootCmd.PersistentFlags().Lookup("host")
+
+	if host == nil {
+		utils.TerminateWithError(errors.New("internal error - host flag was not setup correcting"))
+	}
+
+	return host.Value.String()
+}
 
 func initConfig() {
 	// Find home directory.
@@ -55,24 +62,20 @@ func initConfig() {
 	config.SetConfigName(configName)
 	config.SetConfigType("yaml")
 	config.AutomaticEnv()
-	config.CreateConfig(home,configName)
+	config.CreateConfig(home, configName)
 }
 
-func (c *Cli) Execute() {
+func (c *Cli) Execute(controller controller.ControllerInterface) {
+	c.rootCmd.AddCommand(
+		createVersionCommand(controller),
+		createRegisterCommand(controller),
+		createLoginCommand(controller),
+		createEnvironmentCommand(controller),
+	)
+
 	if err := c.rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
-	}
-}
-
-func createInitCommand(controller controller.ControllerInterface) *cobra.Command {
-	return &cobra.Command{
-		Use:   "init",
-		Short: "Login or registers to KintoHub",
-		Long:  `Helps create a new KintoHub account`,
-		Run: func(cmd *cobra.Command, args []string) {
-			controller.Init()
-		},
 	}
 }
 
