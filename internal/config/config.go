@@ -42,7 +42,7 @@ func CreateConfig(path string, configName string) {
 	}
 }
 
-func WriteConfig() {
+func Save() {
 	err := viper.WriteConfig()
 	if err != nil {
 		utils.TerminateWithError(err)

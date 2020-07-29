@@ -62,7 +62,7 @@ func (c *Controller) Register() {
 	} else {
 		config.SetAuthToken(resp.Token)
 		config.SetEmail(email)
-		config.WriteConfig()
+		config.Save()
 		color.Green.Printf("\nRegistered successfully with %s\n",
 			strings.TrimSpace(email),
 		)
@@ -102,7 +102,7 @@ func (c *Controller) Login() {
 
 			config.SetAuthToken(resp.Token)
 			config.SetEmail(loginEmail)
-			config.WriteConfig()
+			config.Save()
 			color.Green.Printf("\nLogged in successfully with %s\n",
 				strings.TrimSpace(loginEmail),
 			)
