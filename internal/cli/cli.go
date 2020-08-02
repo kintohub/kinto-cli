@@ -72,6 +72,7 @@ func (c *Cli) Execute(controller controller.ControllerInterface) {
 		createLoginCommand(controller),
 		createEnvironmentCommand(controller),
 		createServicesCommand(controller),
+		createStatusCommand(controller),
 	)
 
 	if err := c.rootCmd.Execute(); err != nil {
@@ -138,6 +139,18 @@ func createServicesCommand(controller controller.ControllerInterface) *cobra.Com
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Services(args[0])
+		},
+	}
+}
+
+
+func createStatusCommand(controller controller.ControllerInterface) *cobra.Command {
+	return &cobra.Command{
+		Use:   "status",
+		Short: "List environments & services where the current repo is deployed.",
+		Long:  `Get a list of all environments & services where the current repo is deployed to.`,
+		Run: func(cmd *cobra.Command, args []string) {
+			controller.Status()
 		},
 	}
 }
