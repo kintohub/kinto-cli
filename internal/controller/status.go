@@ -18,7 +18,6 @@ func (c *Controller) Status() {
 	} else {
 
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetAutoMergeCells(true)
 		table.SetRowLine(true)
 		table.SetHeader([]string{
 			"Env Name",
@@ -28,6 +27,7 @@ func (c *Controller) Status() {
 		for _, env := range envs {
 			blocks, err := c.api.GetBlocks(env.Id)
 			if err != nil {
+				utils.TerminateWithError(err)
 
 			}
 			for _, block := range blocks {
