@@ -1,35 +1,15 @@
 package controller
 
 import (
-	"github.com/Terry-Mao/goconf"
 	"github.com/gookit/color"
 	"github.com/kintohub/kinto-cli-go/internal/utils"
 	"github.com/olekukonko/tablewriter"
 	"os"
-	"strings"
 )
 
 func (c *Controller) Status() {
 
-	conf := goconf.New()
-	err := conf.Parse("./.git/config")
-
-	if err != nil {
-		utils.TerminateWithCustomError("Not a Git Repo. Please initialize the repo with Git first")
-	}
-	remote := conf.Get("remote \"origin\"")
-
-	if remote == nil {
-		// In case if git ever changes their config structure.
-		utils.TerminateWithError(err)
-	}
-
-	localGitUrl, err := remote.String("url")
-	if err != nil {
-		utils.TerminateWithError(err)
-	}
-
-	localGitUrl = strings.Trim(localGitUrl, "= ")
+	localGitUrl := utils.GetLocalGitUrl()
 	var count = 0
 	envs, err := c.api.GetClusterEnvironments()
 
@@ -48,6 +28,7 @@ func (c *Controller) Status() {
 		for _, env := range envs {
 			blocks, err := c.api.GetBlocks(env.Id)
 			if err != nil {
+
 			}
 			for _, block := range blocks {
 				for _, release := range block.Releases {

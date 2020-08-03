@@ -147,8 +147,8 @@ func createServicesCommand(controller controller.ControllerInterface) *cobra.Com
 func createStatusCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "status",
-		Short: "List environments & services where the current repo is deployed.",
-		Long:  `Get a list of all environments & services where the current repo is deployed to.`,
+		Short: "List environments & services where the current repo is deployed. This commands needs to be called from within a Git repo.",
+		Long:  `Get a list of all environments & services where the current Git repo is deployed to. This command should be run from within a Git repo.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Status()
 		},
