@@ -59,7 +59,7 @@ func (a *Api) getKubeCoreService(clusterId, envId string) kkcTypes.KintoKubeCore
 			envId,
 		)
 
-		a.kubeCoreServiceClients[publicCluster.Id] = client
+		a.kubeCoreServiceClients[publicCluster.Id+envId] = client
 		return client
 	}
 }

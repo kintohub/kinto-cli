@@ -23,6 +23,7 @@ func (c *Controller) Environment() {
 			clusterDetail[c.Id] = c.DisplayName
 		}
 		table := tablewriter.NewWriter(os.Stdout)
+		table.SetRowLine(true)
 		table.SetHeader([]string{
 			"Env Id",
 			"Name",
