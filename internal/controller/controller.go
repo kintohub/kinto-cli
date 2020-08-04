@@ -11,6 +11,7 @@ type ControllerInterface interface {
 	Environment()
 	Version()
 	Services(envId string)
+	TestTunnel()
 	Status()
 }
 

@@ -22,6 +22,7 @@ type ApiInterface interface {
 	Register(email, password string) (string, error)
 	Login(email, password string) (string, error)
 	GetBlocks(envId string) ([]*kkcTypes.Block, error)
+	CreateTunnel()
 }
 
 // Due to the nature of APIs,

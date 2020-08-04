@@ -72,6 +72,7 @@ func (c *Cli) Execute(controller controller.ControllerInterface) {
 		createLoginCommand(controller),
 		createEnvironmentCommand(controller),
 		createServicesCommand(controller),
+		testTunnel(controller),
 		createStatusCommand(controller),
 	)
 
@@ -139,6 +140,16 @@ func createServicesCommand(controller controller.ControllerInterface) *cobra.Com
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Services(args[0])
+		},
+	}
+}
+
+func testTunnel(controller controller.ControllerInterface) *cobra.Command {
+	return &cobra.Command{
+		Use:   "tunnel",
+		Short: "tunnel test",
+		Run: func(cmd *cobra.Command, args []string) {
+			controller.TestTunnel()
 		},
 	}
 }

@@ -6,6 +6,7 @@ require (
 	github.com/Terry-Mao/goconf v0.0.0-20161115082538-13cb73d70c44
 	github.com/golang/protobuf v1.4.2
 	github.com/gookit/color v1.2.6
+	github.com/jpillora/chisel v1.6.0
 	github.com/kintohub/kinto-enterprise v0.0.0-20200709025524-9cf3ae3a1ef6
 	github.com/kintohub/kinto-kube-core v0.0.0-20200707014915-d4851a429ae5
 	github.com/kintohub/utils-go v0.2.3-0.20200616025156-c64df278ad95
