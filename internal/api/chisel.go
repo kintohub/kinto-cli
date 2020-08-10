@@ -4,35 +4,43 @@ import (
 	"fmt"
 	"github.com/gookit/color"
 	chclient "github.com/jpillora/chisel/client"
+	"github.com/kintohub/kinto-cli-go/internal/config"
 	"github.com/kintohub/kinto-cli-go/internal/utils"
+	"strings"
 	"time"
 )
 
-func (a *Api) CreateTunnel() {
+func (a *Api) CreateTeleport(remotes []string) {
+
 	c, err := chclient.NewClient(&chclient.Config{
 		KeepAlive:        time.Second,
 		MaxRetryInterval: time.Second,
-		Server:           "https://chisel-5f28e.asia1.kinto.io",
-		Remotes: []string{
-			"postgresql:5432:postgresql:5432",
-			"mongodb-0:27019:mongodb-0:27017",
-			//"mongo-1:mongo-1:27017",
-			//"mongo-2:mongo-2:27017",
-		},
+		Server:           config.ChiselHost,
+		Remotes:          remotes,
 	})
 
 	if err != nil {
 		utils.TerminateWithError(err)
 	}
+	c.Logger.Info = false
 
-	color.Green.Printf("\nStarting tunnel!\n")
+	color.Yellow.Printf("\nStarting tunnel!\n")
+	for _, proxy := range remotes {
+		split := strings.Split(proxy, ":")
+		fromHost, fromPort, toBlock, toPort := split[0], split[1], split[2], split[3]
+		color.Magenta.Printf("# Forwarding:")
+		color.Gray.Printf(" %s:%s => %s:%s\n", fromHost, fromPort, toBlock, toPort)
+	}
 
 	// Run indefinitely.
 	go c.Run()
+
+	color.Green.Printf("Connected!\n")
+
 	defer c.Close()
 
 	//TODO: this should not be here.
-	fmt.Println("Press any key to close tunnel")
+	fmt.Println("\nPress any key to close the tunnel")
 	fmt.Scanln()
 
 }

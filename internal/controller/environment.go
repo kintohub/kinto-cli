@@ -5,11 +5,11 @@ import (
 	"github.com/kintohub/kinto-cli-go/internal/utils"
 	"github.com/olekukonko/tablewriter"
 	"os"
-
-	_ "github.com/olekukonko/tablewriter"
 )
 
 func (c *Controller) Environment() {
+
+
 	envs, err := c.api.GetClusterEnvironments()
 	clusters, err := c.api.GetClusters()
 

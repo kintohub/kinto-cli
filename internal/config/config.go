@@ -13,6 +13,8 @@ const (
 	emailKey               = "emailKey"
 	publicClustersKey      = "publicClusters"
 	clusterEnvironmentsKey = "clusterEnvironments"
+	LocalPort              = 5360
+	ChiselHost             = "https://chisel-5f194.vegeta.kintohub.net"
 )
 
 func AddConfigPath(path string) {

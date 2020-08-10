@@ -72,7 +72,7 @@ func (c *Cli) Execute(controller controller.ControllerInterface) {
 		createLoginCommand(controller),
 		createEnvironmentCommand(controller),
 		createServicesCommand(controller),
-		testTunnel(controller),
+		createTeleportCommand(controller),
 		createStatusCommand(controller),
 	)
 
@@ -144,22 +144,29 @@ func createServicesCommand(controller controller.ControllerInterface) *cobra.Com
 	}
 }
 
-func testTunnel(controller controller.ControllerInterface) *cobra.Command {
+func createTeleportCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
-		Use:   "tunnel",
-		Short: "tunnel test",
+		Use:   "teleport",
+		Short: "Port-forward your local services to KintoHub",
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) != 1 {
+				return errors.New("requires environment Id as an argument")
+			}
+			return nil
+		},
 		Run: func(cmd *cobra.Command, args []string) {
-			controller.TestTunnel()
+			controller.Teleport(args[0])
 		},
 	}
 }
 
-
 func createStatusCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
-		Use:   "status",
-		Short: "List environments & services where the current repo is deployed. This commands needs to be called from within a Git repo.",
-		Long:  `Get a list of all environments & services where the current Git repo is deployed to. This command should be run from within a Git repo.`,
+		Use: "status",
+		Short: `List environments & services where the current repo is deployed. 
+				This commands needs to be called from within a Git repo.`,
+		Long: `Get a list of all environments & services where the current Git repo is deployed to. 
+				This command should be run from within a Git repo.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Status()
 		},

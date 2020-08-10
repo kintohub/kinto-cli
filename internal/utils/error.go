@@ -6,7 +6,7 @@ import (
 )
 
 func TerminateWithError(err error) {
-	color.Red.Printf("\nAn error occurred %v\n", err)
+	color.Red.Printf("\nAn error occurred: %v\n", err)
 	os.Exit(1)
 }
 
