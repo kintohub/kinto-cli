@@ -2,9 +2,7 @@ package utils
 
 import (
 	"github.com/Terry-Mao/goconf"
-	_ "github.com/Terry-Mao/goconf"
 	"strings"
-	_ "strings"
 )
 
 func GetLocalGitUrl() string {

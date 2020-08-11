@@ -3,6 +3,7 @@ package api
 import (
 	"crypto/x509"
 	"errors"
+	chclient "github.com/jpillora/chisel/client"
 	"github.com/kintohub/kinto-cli-go/internal/config"
 	"github.com/kintohub/kinto-cli-go/internal/utils"
 	enterpriseTypes "github.com/kintohub/kinto-enterprise/pkg/types"
@@ -19,10 +20,9 @@ var (
 type ApiInterface interface {
 	GetClusterEnvironments() ([]*enterpriseTypes.ClusterEnvironment, error)
 	GetClusters() ([]*enterpriseTypes.PublicClusterInfo, error)
-	Register(email, password string) (string, error)
 	Login(email, password string) (string, error)
 	GetBlocks(envId string) ([]*kkcTypes.Block, error)
-	CreateTeleport(remotes[] string)
+	CreateTeleport(remotes[] string) *chclient.Client
 }
 
 // Due to the nature of APIs,

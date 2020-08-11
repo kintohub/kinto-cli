@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/gookit/color"
 	"github.com/kintohub/kinto-cli-go/internal/utils"
 	"github.com/olekukonko/tablewriter"
 	"os"
@@ -9,7 +8,7 @@ import (
 
 func (c *Controller) Environment() {
 
-
+	utils.StartSpinner()
 	envs, err := c.api.GetClusterEnvironments()
 	clusters, err := c.api.GetClusters()
 
@@ -29,6 +28,9 @@ func (c *Controller) Environment() {
 			"Name",
 			"Region",
 		})
+		table.SetHeaderColor(tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
+			tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
+			tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor})
 
 		for _, c := range envs {
 			table.Append([]string{
@@ -39,9 +41,11 @@ func (c *Controller) Environment() {
 		}
 
 		if len(envs) != 0 {
+			utils.StopSpinner()
+			utils.SuccessMessage("Available environments:")
 			table.Render()
 		} else {
-			color.Red.Printf("\nNo environment/s found!\n")
+			utils.WarningMessage("No environment/s found!")
 		}
 
 	}

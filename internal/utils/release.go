@@ -6,6 +6,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+
+// TODO : Use the refactor utils from KKC
 func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Release {
 	if releases == nil || len(releases) == 0 {
 		return nil

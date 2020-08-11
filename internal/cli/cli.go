@@ -68,7 +68,6 @@ func initConfig() {
 func (c *Cli) Execute(controller controller.ControllerInterface) {
 	c.rootCmd.AddCommand(
 		createVersionCommand(controller),
-		createRegisterCommand(controller),
 		createLoginCommand(controller),
 		createEnvironmentCommand(controller),
 		createServicesCommand(controller),
@@ -82,16 +81,6 @@ func (c *Cli) Execute(controller controller.ControllerInterface) {
 	}
 }
 
-func createRegisterCommand(controller controller.ControllerInterface) *cobra.Command {
-	return &cobra.Command{
-		Use:   "register",
-		Short: "Creates a new account on KintoHub",
-		Long:  `Helps create a new kintoHub account`,
-		Run: func(cmd *cobra.Command, args []string) {
-			controller.Register()
-		},
-	}
-}
 
 func createLoginCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
@@ -147,15 +136,9 @@ func createServicesCommand(controller controller.ControllerInterface) *cobra.Com
 func createTeleportCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "teleport",
-		Short: "Port-forward your local services to KintoHub",
-		Args: func(cmd *cobra.Command, args []string) error {
-			if len(args) != 1 {
-				return errors.New("requires environment Id as an argument")
-			}
-			return nil
-		},
+		Short: "Port-forward your remote services to your local machine",
 		Run: func(cmd *cobra.Command, args []string) {
-			controller.Teleport(args[0])
+			controller.Teleport()
 		},
 	}
 }

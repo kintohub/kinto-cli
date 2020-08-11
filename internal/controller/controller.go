@@ -6,12 +6,11 @@ import (
 
 type ControllerInterface interface {
 	Init()
-	Register()
 	Login()
 	Environment()
 	Version()
 	Services(envId string)
-	Teleport(envId string)
+	Teleport()
 	Status()
 }
 

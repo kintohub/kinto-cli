@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/gookit/color"
 	"github.com/kintohub/kinto-cli-go/internal/utils"
 	"github.com/olekukonko/tablewriter"
 	"os"
@@ -30,6 +29,6 @@ func (c *Controller) Services(envId string) {
 
 		table.Render()
 	} else {
-		color.Yellow.Printf("\nNo services/s found!\n")
+		utils.WarningMessage("No services/s found!")
 	}
 }
