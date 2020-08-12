@@ -19,6 +19,5 @@ func (a *Api) CreateTeleport(remotes []string) *chclient.Client {
 		utils.TerminateWithError(err)
 	}
 	chiselClient.Logger.Info = false
-
 	return chiselClient
 }

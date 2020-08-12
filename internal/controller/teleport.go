@@ -53,7 +53,10 @@ func (c *Controller) Teleport() {
 
 func (c *Controller) startTunnel(envId string) {
 	utils.StartSpinner()
-	var remotes []string
+
+
+	 var remotes []string
+
 	inc := 0
 	localGitUrl := utils.GetLocalGitUrl()
 	blocks, err := c.api.GetBlocks(envId)
