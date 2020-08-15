@@ -10,8 +10,6 @@ import (
 	"time"
 )
 
-var chiselClient *chclient.Client
-
 func (a *Api) StartTeleport(blocksToForward []RemoteConfig) {
 
 	var remotes []string
@@ -23,7 +21,7 @@ func (a *Api) StartTeleport(blocksToForward []RemoteConfig) {
 			":"+remote.ToHost+":"+strconv.Itoa(remote.ToPort)))
 	}
 
-	chiselClient, err = chclient.NewClient(&chclient.Config{
+	chiselClient, err := chclient.NewClient(&chclient.Config{
 		KeepAlive:        time.Second,
 		MaxRetryInterval: time.Second,
 		Server:           config.ChiselHost,
