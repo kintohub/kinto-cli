@@ -3,7 +3,6 @@ package api
 import (
 	"crypto/x509"
 	"errors"
-	chclient "github.com/jpillora/chisel/client"
 	"github.com/kintohub/kinto-cli-go/internal/config"
 	"github.com/kintohub/kinto-cli-go/internal/utils"
 	enterpriseTypes "github.com/kintohub/kinto-enterprise/pkg/types"
@@ -17,12 +16,19 @@ var (
 	NotFoundError = errors.New("resource requested was not found")
 )
 
+type RemoteConfig struct {
+	FromHost string
+	FromPort int
+	ToHost   string
+	ToPort   int
+}
+
 type ApiInterface interface {
 	GetClusterEnvironments() ([]*enterpriseTypes.ClusterEnvironment, error)
 	GetClusters() ([]*enterpriseTypes.PublicClusterInfo, error)
 	Login(email, password string) (string, error)
 	GetBlocks(envId string) ([]*kkcTypes.Block, error)
-	CreateTeleport(remotes[] string) *chclient.Client
+	StartTeleport(blocksToForward []RemoteConfig)
 }
 
 // Due to the nature of APIs,

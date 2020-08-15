@@ -2,9 +2,10 @@ package config
 
 import (
 	"fmt"
-	"github.com/kintohub/kinto-cli-go/internal/utils"
+	"github.com/gookit/color"
 	enterpriseTypes "github.com/kintohub/kinto-enterprise/pkg/types"
 	"github.com/spf13/viper"
+	"os"
 )
 
 const (
@@ -41,7 +42,8 @@ func CreateConfig(path string, configName string) {
 			configName,
 		))
 		if err != nil {
-			utils.TerminateWithError(err)
+			color.Red.Println("An error occurred: %v", err)
+			os.Exit(1)
 		}
 	}
 }
@@ -49,7 +51,8 @@ func CreateConfig(path string, configName string) {
 func Save() {
 	err := viper.WriteConfig()
 	if err != nil {
-		utils.TerminateWithError(err)
+		color.Red.Println("An error occurred: %v", err)
+		os.Exit(1)
 	}
 }
 
@@ -68,6 +71,10 @@ func GetAuthToken() string {
 
 func SetEmail(email string) {
 	viper.Set(emailKey, email)
+}
+
+func GetEmail() string {
+	return viper.GetString(emailKey)
 }
 
 func SetPublicClusters(publicClusters []*enterpriseTypes.PublicClusterInfo) {

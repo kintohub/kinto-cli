@@ -10,32 +10,25 @@ import (
 
 func (c *Controller) Init() {
 
-	email := config.GetString("emailKey")
-	token := config.GetString("authTokenKey")
-
-	if email == "" || token == "" {
-		utils.WarningMessage("Please log-in into your account first")
-		c.Login()
-
-	} else {
-		// TODO : Create a .kinto file and run init code
-		_, err := os.Stat(".kinto")
-		if os.IsNotExist(err) {
-			_, err := os.Create(".kinto")
-			if err != nil {
-				utils.TerminateWithError(err)
-			}
-			utils.SuccessMessage("Repo initialized")
-		} else {
-			utils.WarningMessage("Repo is already initialized")
+	utils.LoginCheck()
+	// TODO : Create a .kinto file and run init code
+	_, err := os.Stat(".kinto")
+	if os.IsNotExist(err) {
+		_, err := os.Create(".kinto")
+		if err != nil {
+			utils.TerminateWithError(err)
 		}
+		utils.SuccessMessage("Repo initialized")
+	} else {
+		utils.WarningMessage("Repo is already initialized")
 	}
+
 }
 
 func (c *Controller) Login() {
 	utils.StopSpinner()
-	loginEmail := utils.EmailPrompt()
-	passwordBytes := utils.PasswordPrompt()
+	loginEmail := EmailPrompt()
+	passwordBytes := PasswordPrompt()
 
 	authToken, err := c.api.Login(
 		strings.TrimSpace(loginEmail),
@@ -44,20 +37,19 @@ func (c *Controller) Login() {
 
 	if err != nil {
 		utils.TerminateWithError(err)
-	} else {
-		email := config.GetString("emailKey")
-
-		if email == loginEmail {
-			utils.WarningMessage(fmt.Sprintf("Already logged in with %s",
-				config.GetString("emailKey")))
-		} else {
-			config.SetAuthToken(authToken)
-			config.SetEmail(loginEmail)
-			config.Save()
-			utils.SuccessMessage(fmt.Sprintf("Logged in successfully with %s",
-				strings.TrimSpace(loginEmail)),
-			)
-		}
-
 	}
+	email := config.GetEmail()
+
+	if email == loginEmail {
+		utils.WarningMessage(fmt.Sprintf("Already logged in with %s",
+			config.GetEmail()))
+	} else {
+		config.SetAuthToken(authToken)
+		config.SetEmail(loginEmail)
+		config.Save()
+		utils.SuccessMessage(fmt.Sprintf("Logged in successfully with %s",
+			strings.TrimSpace(loginEmail)),
+		)
+	}
+
 }

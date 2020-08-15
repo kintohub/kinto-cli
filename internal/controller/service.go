@@ -7,6 +7,8 @@ import (
 )
 
 func (c *Controller) Services(envId string) {
+	utils.StartSpinner()
+	utils.LoginCheck()
 	blocks, err := c.api.GetBlocks(envId)
 
 	if err != nil {
@@ -26,7 +28,7 @@ func (c *Controller) Services(envId string) {
 				block.DisplayName,
 			})
 		}
-
+		utils.StopSpinner()
 		table.Render()
 	} else {
 		utils.WarningMessage("No services/s found!")

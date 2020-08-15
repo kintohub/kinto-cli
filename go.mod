@@ -18,5 +18,6 @@ require (
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.0
 	golang.org/x/crypto v0.0.0-20200707235045-ab33eee955e0 // indirect
+	golang.org/x/tools v0.0.0-20200303165918-5bcca83a7881
 	google.golang.org/grpc v1.29.1
 )

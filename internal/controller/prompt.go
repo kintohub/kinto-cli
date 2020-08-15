@@ -1,7 +1,9 @@
-package utils
+package controller
 
 import (
 	"github.com/AlecAivazis/survey/v2"
+
+	"github.com/kintohub/kinto-cli-go/internal/utils"
 )
 
 func EmailPrompt() string {
@@ -16,7 +18,7 @@ func EmailPrompt() string {
 		}))
 
 	if err != nil {
-		TerminateWithCustomError("Aborted!")
+		utils.TerminateWithCustomError("Aborted!")
 	}
 
 	return email
@@ -34,7 +36,7 @@ func PasswordPrompt() string {
 		}))
 
 	if err != nil {
-		TerminateWithCustomError("Aborted!")
+		utils.TerminateWithCustomError("Aborted!")
 	}
 
 	return password
@@ -49,7 +51,7 @@ func TeleportPrompt(envName []string, envDetails map[string]string) string {
 	err := survey.AskOne(prompt, &selectedEnv)
 
 	if err != nil {
-		TerminateWithCustomError("Aborted!")
+		utils.TerminateWithCustomError("Aborted!")
 	}
 
 	return envDetails[selectedEnv]

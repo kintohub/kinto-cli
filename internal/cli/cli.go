@@ -81,11 +81,10 @@ func (c *Cli) Execute(controller controller.ControllerInterface) {
 	}
 }
 
-
 func createLoginCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "login",
-		Short: "Log in an existing KintoHub account",
+		Short: "Login to an existing KintoHub account",
 		Long:  `Helps you to log in an already existing KintoHub account`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Login()
@@ -107,7 +106,7 @@ func createVersionCommand(controller controller.ControllerInterface) *cobra.Comm
 func createEnvironmentCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "env",
-		Short: "List all the Environment ID names and their regions",
+		Short: "List all the Environment IDs and their regions",
 		Long:  `Get a list of all the Environment ID names and their regions`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Environment()
@@ -119,7 +118,7 @@ func createServicesCommand(controller controller.ControllerInterface) *cobra.Com
 	return &cobra.Command{
 		Use:   "svs",
 		Short: "List services",
-		Long:  `Get a list of all services within a n environment`,
+		Long:  `Get a list of all services within an environment`,
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 1 {
 				return errors.New("requires envId argument")
