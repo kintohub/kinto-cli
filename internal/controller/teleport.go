@@ -44,7 +44,7 @@ func (c *Controller) Teleport() {
 	if len(envDetails) != 0 {
 		utils.StopSpinner()
 		selectedEnvId := TeleportPrompt(envName, envDetails)
-		c.createTeleport(selectedEnvId)
+		c.configureTeleport(selectedEnvId)
 
 	} else {
 		utils.WarningMessage("No environment/s found to port-forward!")
@@ -52,7 +52,7 @@ func (c *Controller) Teleport() {
 
 }
 
-func (c *Controller) createTeleport(envId string) {
+func (c *Controller) configureTeleport(envId string) {
 	utils.StartSpinner()
 	var blocksToForward []api.RemoteConfig
 
