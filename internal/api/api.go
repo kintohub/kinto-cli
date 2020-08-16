@@ -16,13 +16,6 @@ var (
 	NotFoundError = errors.New("resource requested was not found")
 )
 
-type RemoteConfig struct {
-	FromHost string
-	FromPort int
-	ToHost   string
-	ToPort   int
-}
-
 type ApiInterface interface {
 	GetClusterEnvironments() ([]*enterpriseTypes.ClusterEnvironment, error)
 	GetClusters() ([]*enterpriseTypes.PublicClusterInfo, error)
