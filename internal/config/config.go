@@ -9,7 +9,6 @@ import (
 )
 
 const (
-	Version                = "v0.1"
 	authTokenKey           = "authToken"
 	emailKey               = "emailKey"
 	publicClustersKey      = "publicClusters"
@@ -17,6 +16,8 @@ const (
 	LocalPort              = 5360
 	ChiselHost             = "https://chisel-5f194.vegeta.kintohub.net"
 )
+
+var Version = "v0.1" //Needs to be a non-const for passing version at build time
 
 func AddConfigPath(path string) {
 	viper.AddConfigPath(path)
