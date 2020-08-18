@@ -47,7 +47,7 @@ func (c *Controller) Teleport() {
 		c.configureTeleport(selectedEnvId)
 
 	} else {
-		utils.WarningMessage("No environment/s found to port-forward!")
+		utils.WarningMessage("No environment/s found to teleport into!")
 	}
 
 }
