@@ -2,18 +2,22 @@ package config
 
 import (
 	"fmt"
-	"github.com/kintohub/kinto-cli-go/internal/utils"
+	"github.com/gookit/color"
 	enterpriseTypes "github.com/kintohub/kinto-enterprise/pkg/types"
 	"github.com/spf13/viper"
+	"os"
 )
 
 const (
-	Version                = "v0.1"
 	authTokenKey           = "authToken"
 	emailKey               = "emailKey"
 	publicClustersKey      = "publicClusters"
 	clusterEnvironmentsKey = "clusterEnvironments"
+	LocalPort              = 5360
+	ChiselHost             = "https://chisel-5f194.vegeta.kintohub.net"
 )
+
+var Version = "v0.1" //Needs to be a non-const for passing version at build time
 
 func AddConfigPath(path string) {
 	viper.AddConfigPath(path)
@@ -39,7 +43,9 @@ func CreateConfig(path string, configName string) {
 			configName,
 		))
 		if err != nil {
-			utils.TerminateWithError(err)
+			color.Red.Println("An error occurred: %v", err)
+			//To avoid cyclic dependency error while importing
+			os.Exit(1)
 		}
 	}
 }
@@ -47,7 +53,8 @@ func CreateConfig(path string, configName string) {
 func Save() {
 	err := viper.WriteConfig()
 	if err != nil {
-		utils.TerminateWithError(err)
+		color.Red.Println("An error occurred: %v", err)
+		os.Exit(1)
 	}
 }
 
@@ -66,6 +73,10 @@ func GetAuthToken() string {
 
 func SetEmail(email string) {
 	viper.Set(emailKey, email)
+}
+
+func GetEmail() string {
+	return viper.GetString(emailKey)
 }
 
 func SetPublicClusters(publicClusters []*enterpriseTypes.PublicClusterInfo) {

@@ -17,6 +17,13 @@ type accessTokenManager struct {
 	clustersClient enterpriseTypes.ClusterServiceClient
 }
 
+type RemoteConfig struct {
+	FromHost string
+	FromPort int
+	ToHost   string
+	ToPort   int
+}
+
 func (a *accessTokenManager) GetRequestMetadata(ctx context.Context, args ...string) (map[string]string, error) {
 	// TODO: store + check if expired logic
 	bearer := "Bearer " + config.GetAuthToken()
@@ -40,3 +47,6 @@ func (a *accessTokenManager) GetRequestMetadata(ctx context.Context, args ...str
 func (a *accessTokenManager) RequireTransportSecurity() bool {
 	return true
 }
+
+
+

@@ -68,10 +68,10 @@ func initConfig() {
 func (c *Cli) Execute(controller controller.ControllerInterface) {
 	c.rootCmd.AddCommand(
 		createVersionCommand(controller),
-		createRegisterCommand(controller),
 		createLoginCommand(controller),
 		createEnvironmentCommand(controller),
 		createServicesCommand(controller),
+		createTeleportCommand(controller),
 		createStatusCommand(controller),
 	)
 
@@ -81,21 +81,10 @@ func (c *Cli) Execute(controller controller.ControllerInterface) {
 	}
 }
 
-func createRegisterCommand(controller controller.ControllerInterface) *cobra.Command {
-	return &cobra.Command{
-		Use:   "register",
-		Short: "Creates a new account on KintoHub",
-		Long:  `Helps create a new kintoHub account`,
-		Run: func(cmd *cobra.Command, args []string) {
-			controller.Register()
-		},
-	}
-}
-
 func createLoginCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "login",
-		Short: "Log in an existing KintoHub account",
+		Short: "Login to an existing KintoHub account",
 		Long:  `Helps you to log in an already existing KintoHub account`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Login()
@@ -117,7 +106,7 @@ func createVersionCommand(controller controller.ControllerInterface) *cobra.Comm
 func createEnvironmentCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "env",
-		Short: "List all the Environment ID names and their regions",
+		Short: "List all the Environment IDs and their regions",
 		Long:  `Get a list of all the Environment ID names and their regions`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Environment()
@@ -129,7 +118,7 @@ func createServicesCommand(controller controller.ControllerInterface) *cobra.Com
 	return &cobra.Command{
 		Use:   "svs",
 		Short: "List services",
-		Long:  `Get a list of all services within a n environment`,
+		Long:  `Get a list of all services within an environment`,
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 1 {
 				return errors.New("requires envId argument")
@@ -143,12 +132,23 @@ func createServicesCommand(controller controller.ControllerInterface) *cobra.Com
 	}
 }
 
+func createTeleportCommand(controller controller.ControllerInterface) *cobra.Command {
+	return &cobra.Command{
+		Use:   "teleport",
+		Short: "Port-forward your remote services to your local machine",
+		Run: func(cmd *cobra.Command, args []string) {
+			controller.Teleport()
+		},
+	}
+}
 
 func createStatusCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
-		Use:   "status",
-		Short: "List environments & services where the current repo is deployed. This commands needs to be called from within a Git repo.",
-		Long:  `Get a list of all environments & services where the current Git repo is deployed to. This command should be run from within a Git repo.`,
+		Use: "status",
+		Short: `List environments & services where the current repo is deployed. 
+				This commands needs to be called from within a Git repo.`,
+		Long: `Get a list of all environments & services where the current Git repo is deployed to. 
+				This command should be run from within a Git repo.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Status()
 		},

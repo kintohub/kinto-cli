@@ -1,13 +1,14 @@
 package controller
 
 import (
-	"github.com/gookit/color"
 	"github.com/kintohub/kinto-cli-go/internal/utils"
 	"github.com/olekukonko/tablewriter"
 	"os"
 )
 
 func (c *Controller) Services(envId string) {
+	utils.StartSpinner()
+	utils.CheckLogin()
 	blocks, err := c.api.GetBlocks(envId)
 
 	if err != nil {
@@ -27,9 +28,9 @@ func (c *Controller) Services(envId string) {
 				block.DisplayName,
 			})
 		}
-
+		utils.StopSpinner()
 		table.Render()
 	} else {
-		color.Yellow.Printf("\nNo services/s found!\n")
+		utils.WarningMessage("No services/s found!")
 	}
 }
