@@ -3,7 +3,7 @@ package config
 import (
 	"fmt"
 	"github.com/gookit/color"
-	enterpriseTypes "github.com/kintohub/kinto-enterprise/pkg/types"
+	"github.com/kintohub/kinto-cli/internal/types"
 	"github.com/spf13/viper"
 	"os"
 )
@@ -79,7 +79,7 @@ func GetEmail() string {
 	return viper.GetString(emailKey)
 }
 
-func SetPublicClusters(publicClusters []*enterpriseTypes.PublicClusterInfo) {
+func SetPublicClusters(publicClusters []*types.PublicClusterInfo) {
 	publicClustersMap := map[string]interface{}{}
 
 	for _, publicCluster := range publicClusters {
@@ -89,19 +89,19 @@ func SetPublicClusters(publicClusters []*enterpriseTypes.PublicClusterInfo) {
 	viper.Set(publicClustersKey, publicClustersMap)
 }
 
-func GetPublicClusterInfo(clusterId string) *enterpriseTypes.PublicClusterInfo {
+func GetPublicClusterInfo(clusterId string) *types.PublicClusterInfo {
 	publicClustersMap := viper.GetStringMap(publicClustersKey)
 
 	if publicClustersMap != nil {
 		if publicCluster, ok := publicClustersMap[clusterId]; ok {
-			return publicCluster.(*enterpriseTypes.PublicClusterInfo)
+			return publicCluster.(*types.PublicClusterInfo)
 		}
 	}
 
 	return nil
 }
 
-func SetClusterEnvironments(clusterEnvs []*enterpriseTypes.ClusterEnvironment) {
+func SetClusterEnvironments(clusterEnvs []*types.ClusterEnvironment) {
 	clusterEnvironmentsMap := map[string]interface{}{}
 
 	for _, clusterEnv := range clusterEnvs {
@@ -111,12 +111,12 @@ func SetClusterEnvironments(clusterEnvs []*enterpriseTypes.ClusterEnvironment) {
 	viper.Set(publicClustersKey, clusterEnvironmentsMap)
 }
 
-func GetClusterEnvironment(envId string) *enterpriseTypes.ClusterEnvironment {
+func GetClusterEnvironment(envId string) *types.ClusterEnvironment {
 	clusterEnvironmentsMap := viper.GetStringMap(clusterEnvironmentsKey)
 
 	if clusterEnvironmentsMap != nil {
 		if clusterEnv, ok := clusterEnvironmentsMap[envId]; ok {
-			return clusterEnv.(*enterpriseTypes.ClusterEnvironment)
+			return clusterEnv.(*types.ClusterEnvironment)
 		}
 	}
 

@@ -2,8 +2,8 @@ package controller
 
 import (
 	"fmt"
-	"github.com/kintohub/kinto-cli-go/internal/config"
-	"github.com/kintohub/kinto-cli-go/internal/utils"
+	"github.com/kintohub/kinto-cli/internal/config"
+	"github.com/kintohub/kinto-cli/internal/utils"
 )
 
 func (c Controller) Version() {

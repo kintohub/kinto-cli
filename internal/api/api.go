@@ -3,10 +3,9 @@ package api
 import (
 	"crypto/x509"
 	"errors"
-	"github.com/kintohub/kinto-cli-go/internal/config"
-	"github.com/kintohub/kinto-cli-go/internal/utils"
-	enterpriseTypes "github.com/kintohub/kinto-enterprise/pkg/types"
-	kkcTypes "github.com/kintohub/kinto-kube-core/pkg/types"
+	"github.com/kintohub/kinto-cli/internal/config"
+	"github.com/kintohub/kinto-cli/internal/types"
+	"github.com/kintohub/kinto-cli/internal/utils"
 	utilsGrpc "github.com/kintohub/utils-go/server/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -17,33 +16,31 @@ var (
 )
 
 type ApiInterface interface {
-	GetClusterEnvironments() ([]*enterpriseTypes.ClusterEnvironment, error)
-	GetClusters() ([]*enterpriseTypes.PublicClusterInfo, error)
+	GetClusterEnvironments() ([]*types.ClusterEnvironment, error)
+	GetClusters() ([]*types.PublicClusterInfo, error)
 	Login(email, password string) (string, error)
-	GetBlocks(envId string) ([]*kkcTypes.Block, error)
+	GetBlocks(envId string) ([]*types.Block, error)
 	StartTeleport(blocksToForward []RemoteConfig)
 }
 
 // Due to the nature of APIs,
 type Api struct {
 	masterHost             string
-	authClient             enterpriseTypes.AuthServiceClient
-	clusterClient          enterpriseTypes.ClusterServiceClient
-	kubeCoreServiceClients map[string]kkcTypes.KintoKubeCoreServiceClient
+	authClient             types.AuthServiceClient
+	clusterClient          types.ClusterServiceClient
+	kubeCoreServiceClients map[string]types.KintoKubeCoreServiceClient
 }
 
 func NewApiOrDie(masterHost string) ApiInterface {
 	return &Api{
-		masterHost: masterHost,
-		authClient: enterpriseTypes.
-			NewAuthServiceClient(utilsGrpc.CreateConnectionOrDie(masterHost, true)),
-		clusterClient: enterpriseTypes.
-			NewClusterServiceClient(utilsGrpc.CreateConnectionOrDie(masterHost, true)),
-		kubeCoreServiceClients: map[string]kkcTypes.KintoKubeCoreServiceClient{},
+		masterHost:             masterHost,
+		authClient:             types.NewAuthServiceClient(utilsGrpc.CreateConnectionOrDie(masterHost, true)),
+		clusterClient:          types.NewClusterServiceClient(utilsGrpc.CreateConnectionOrDie(masterHost, true)),
+		kubeCoreServiceClients: map[string]types.KintoKubeCoreServiceClient{},
 	}
 }
 
-func (a *Api) getKubeCoreService(clusterId, envId string) kkcTypes.KintoKubeCoreServiceClient {
+func (a *Api) getKubeCoreService(clusterId, envId string) types.KintoKubeCoreServiceClient {
 	publicCluster, err := a.GetPublicClusterInfo(clusterId)
 
 	if err != nil {
@@ -66,9 +63,9 @@ func (a *Api) getKubeCoreService(clusterId, envId string) kkcTypes.KintoKubeCore
 
 // TODO: Refactor kinto go commons to accept 3rd party dial options optionally
 func createKintoKubeCoreClientOrDie(
-	clustersClient enterpriseTypes.ClusterServiceClient,
-	cluster *enterpriseTypes.PublicClusterInfo,
-	envId string) kkcTypes.KintoKubeCoreServiceClient {
+	clustersClient types.ClusterServiceClient,
+	cluster *types.PublicClusterInfo,
+	envId string) types.KintoKubeCoreServiceClient {
 	// https://grpc.io/docs/guides/auth/#authenticate-with-google
 	pool, _ := x509.SystemCertPool()
 	creds := credentials.NewClientTLSFromCert(pool, "")
@@ -89,5 +86,5 @@ func createKintoKubeCoreClientOrDie(
 		utils.TerminateWithError(err)
 	}
 
-	return kkcTypes.NewKintoKubeCoreServiceClient(conn)
+	return types.NewKintoKubeCoreServiceClient(conn)
 }

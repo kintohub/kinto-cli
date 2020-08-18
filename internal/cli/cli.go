@@ -3,9 +3,9 @@ package cli
 import (
 	"errors"
 	"fmt"
-	"github.com/kintohub/kinto-cli-go/internal/config"
-	"github.com/kintohub/kinto-cli-go/internal/controller"
-	"github.com/kintohub/kinto-cli-go/internal/utils"
+	"github.com/kintohub/kinto-cli/internal/config"
+	"github.com/kintohub/kinto-cli/internal/controller"
+	"github.com/kintohub/kinto-cli/internal/utils"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"os"
