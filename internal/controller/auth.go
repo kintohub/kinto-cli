@@ -10,7 +10,7 @@ import (
 
 func (c *Controller) Init() {
 
-	utils.LoginCheck()
+	utils.CheckLogin()
 	// TODO : Create a .kinto file and run init code
 	_, err := os.Stat(".kinto")
 	if os.IsNotExist(err) {

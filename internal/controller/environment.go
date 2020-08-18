@@ -8,7 +8,7 @@ import (
 
 func (c *Controller) Environment() {
 
-	utils.LoginCheck()
+	utils.CheckLogin()
 
 	utils.StartSpinner()
 	envs, err := c.api.GetClusterEnvironments()

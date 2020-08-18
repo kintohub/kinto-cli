@@ -8,7 +8,7 @@ import (
 
 func (c *Controller) Services(envId string) {
 	utils.StartSpinner()
-	utils.LoginCheck()
+	utils.CheckLogin()
 	blocks, err := c.api.GetBlocks(envId)
 
 	if err != nil {

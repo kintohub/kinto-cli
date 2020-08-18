@@ -7,7 +7,7 @@ import (
 )
 
 func (c *Controller) Status() {
-	utils.LoginCheck()
+	utils.CheckLogin()
 	utils.StartSpinner()
 
 	localGitUrl := utils.GetLocalGitUrl()

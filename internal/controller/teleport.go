@@ -8,7 +8,7 @@ import (
 )
 
 func (c *Controller) Teleport() {
-	utils.LoginCheck()
+	utils.CheckLogin()
 	utils.StartSpinner()
 
 	localGitUrl := utils.GetLocalGitUrl()

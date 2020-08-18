@@ -11,7 +11,6 @@ import (
 	"strings"
 )
 
-// TODO : Use the refactor utils from KKC
 func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Release {
 	if releases == nil || len(releases) == 0 {
 		return nil
@@ -92,7 +91,7 @@ func GetLocalGitUrl() string {
 	return localGitUrl
 }
 
-func LoginCheck() {
+func CheckLogin() {
 	//TODO : remove viper dependency. Using `config` creates cyclic imports.
 	email := config.GetEmail()
 	token := config.GetAuthToken()
