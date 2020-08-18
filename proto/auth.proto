@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+option go_package = "github.com/kintohub/kinto-cli/internal/types";
+
+import "google/protobuf/empty.proto";
+import "enterprise_models.proto";
+
+// === API === \\
+
+message SyncTimeRequest {
+    int64 sendTimeMs = 1;
+}
+
+message SyncTimeResponse {
+    int64 clientTimestampMs = 1;
+    int64 serverTimestampMs = 2;
+}
+
+message RegisterRequest {
+    string email = 1;
+    string password = 2;
+    string reCaptchaToken = 3;
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message ChangePasswordRequest {
+    string password = 1;
+    string newPassword = 2;
+}
+
+message UpdateDisplayNameRequest {
+    string displayName = 1;
+}
+
+message SessionToken {
+    string token = 1;
+}
+
+message ForgotPasswordRequest {
+    string email = 1;
+}
+
+message ResetPasswordRequest {
+    string email = 1;
+    string token = 2;
+    string newPassword = 3;
+}
+
+message ResendValidationRequest {
+    string email = 1;
+}
+
+message ValidateEmailRequest {
+    string email = 1;
+    string token = 2;
+}
+
+message SetupIntentRequest {
+    string reCaptchaToken = 1;
+}
+
+message SetupIntentResponse {
+    string clientSecret = 1;
+}
+
+message RefreshSessionRequest {
+    bool forceUpdateSubscriptionState = 1;
+}
+
+message CreateStripeBillingSessionUrlRequest {
+    string returnUrl = 1;
+}
+
+message CreateStripeBillingSessionUrlResponse {
+    string stripeBillingUrl = 1;
+}
+
+service AuthService {
+    rpc SyncTime (SyncTimeRequest) returns (SyncTimeResponse) {}
+
+    rpc Register (RegisterRequest) returns (SessionToken) {}
+    rpc Login (LoginRequest) returns (SessionToken) {}
+    rpc GetMe (google.protobuf.Empty) returns (Me) {} // requires session token
+    rpc GetCannySSOToken (google.protobuf.Empty) returns (SessionToken) {}
+
+    rpc UpdateDisplayName (UpdateDisplayNameRequest) returns (Me) {} // requires session token
+    rpc ChangePassword (ChangePasswordRequest) returns (SessionToken) {} // requires session token
+    rpc ValidateEmail (ValidateEmailRequest) returns (google.protobuf.Empty) {}
+    rpc ResetPassword (ResetPasswordRequest) returns (SessionToken) {}
+    rpc ResendEmailValidation (ResendValidationRequest) returns (google.protobuf.Empty) {}
+    rpc ForgotPassword (ResendValidationRequest) returns (google.protobuf.Empty) {}
+
+    rpc CreateSetupIntent (SetupIntentRequest) returns (SetupIntentResponse) {} // requires session token
+    rpc CancelStripeSubscription (google.protobuf.Empty) returns (google.protobuf.Empty) {} // requires session token
+    rpc CreateStripeBillingSessionUrl (CreateStripeBillingSessionUrlRequest) returns (CreateStripeBillingSessionUrlResponse) {}
+
+    rpc RefreshSession(RefreshSessionRequest) returns (SessionToken) {} // requires session token
+}

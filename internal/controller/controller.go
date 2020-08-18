@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/kintohub/kinto-cli-go/internal/api"
+	"github.com/kintohub/kinto-cli/internal/api"
 )
 
 type ControllerInterface interface {

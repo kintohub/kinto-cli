@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+option go_package = "github.com/kintohub/kinto-cli/internal/types";
+
+import "google/protobuf/timestamp.proto";
+import "kkc_models.proto";
+
+
+message ValidationRequest {
+    string email = 1;
+    string token = 2;
+    google.protobuf.Timestamp expireAt = 3;
+}
+
+message Account {
+    // Subscription state != Stripe's states. We will not need extra information such as cancelled, etc.
+    // This is simple paying, free, and past due states that are used for our systems and translated from
+    // stripe's statuses or future billing statuses that may drive our payments system.
+    enum SubscriptionState {
+        NOT_SET = 0;
+        // Free user or cancelled subscription. This is the default state
+        FREE = 1;
+        // Has an active and valid credit card on the subscription
+        ACTIVE = 2;
+        // Active, but the payment was not made and is past due. (Invalid CC, blocked our payment, etc)
+        PAST_DUE = 3;
+        // Payment cancelled by us/them, need to lock the account for manual actions
+        CANCELLED = 4;
+    }
+
+    string id = 1;
+    string email = 2;
+    string password = 3;
+    google.protobuf.Timestamp createdAt = 4;
+    google.protobuf.Timestamp lastSeenAt = 5;
+    ValidationRequest resetPassRequest = 6;
+    ValidationRequest validateEmailRequest = 7;
+    bool isEmailValidated = 8;
+    int32 maxAllowedEnvironments = 9;
+    string stripeCustomerId = 10;
+    string stripeSubscriptionId = 11;
+    string stripeSubscriptionHash = 12; // hash of stripe remote state used update subscription details when changed
+    map<string, string> stripePriceSubscriptionItemIds = 13; // unique subscription item id for the stripe price id for charges
+    SubscriptionState subscriptionState = 14;
+    string displayName = 15;
+}
+
+message Session {
+    string id = 1;
+    string accountId = 2;
+    google.protobuf.Timestamp createdAt = 3;
+    google.protobuf.Timestamp expiresAt = 4;
+    Account.SubscriptionState subscriptionState = 5;
+}
+
+message Me {
+    string id = 1;
+    bool isEmailValidated = 2;
+    string email = 3;
+    Account.SubscriptionState subscriptionState = 4;
+    string displayName = 5;
+}
+
+message Member {
+    string accountId = 1;
+    AccessPermission.Role role = 2;
+}
+
+// Internal Model Only!!! MUST NOT RETURN THIS TO THE PUBLIC
+message Cluster {
+    string id = 1;
+    string displayName = 2;
+    string hostName = 3;
+    google.protobuf.Timestamp createdAt = 4;
+    google.protobuf.Timestamp lastHealthCheck = 5;
+    string clientSecret = 6;
+    bytes accessTokenSecretKey = 7;
+    string webHostName = 8;
+}
+
+message ClusterEnvironment {
+    string id = 1;
+    string clusterId = 2;
+    string name = 3;
+    google.protobuf.Timestamp createdAt = 4;
+    repeated Member members = 5;
+}
+
+message Email {
+    string templateId = 1;
+    string subject = 2;
+    string email = 3;
+    map<string, string> variables = 4;
+}

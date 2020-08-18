@@ -2,11 +2,11 @@ package api
 
 import (
 	"context"
-	"github.com/kintohub/kinto-cli-go/internal/utils"
-	kkcTypes "github.com/kintohub/kinto-kube-core/pkg/types"
+	"github.com/kintohub/kinto-cli/internal/types"
+	"github.com/kintohub/kinto-cli/internal/utils"
 )
 
-func (a *Api) GetBlocks(envId string) ([]*kkcTypes.Block, error) {
+func (a *Api) GetBlocks(envId string) ([]*types.Block, error) {
 	env, err := a.GetClusterEnvironment(envId)
 
 	if err != nil {
@@ -14,7 +14,7 @@ func (a *Api) GetBlocks(envId string) ([]*kkcTypes.Block, error) {
 	}
 
 	blocksResp, err := a.getKubeCoreService(env.ClusterId, envId).GetBlocks(
-		context.Background(), &kkcTypes.BlockQueryRequest{
+		context.Background(), &types.BlockQueryRequest{
 			EnvId: envId,
 		},
 	)

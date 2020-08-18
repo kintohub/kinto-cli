@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"github.com/kintohub/kinto-cli-go/internal/api"
-	"github.com/kintohub/kinto-cli-go/internal/config"
-	"github.com/kintohub/kinto-cli-go/internal/utils"
+	"github.com/kintohub/kinto-cli/internal/api"
+	"github.com/kintohub/kinto-cli/internal/config"
+	"github.com/kintohub/kinto-cli/internal/utils"
 	"strings"
 )
 

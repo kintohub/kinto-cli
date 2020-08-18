@@ -2,11 +2,11 @@ package api
 
 import (
 	"context"
-	enterpriseTypes "github.com/kintohub/kinto-enterprise/pkg/types"
+	"github.com/kintohub/kinto-cli/internal/types"
 )
 
 func (a *Api) Register(email, password string) (string, error) {
-	resp, err := a.authClient.Register(context.Background(), &enterpriseTypes.RegisterRequest{
+	resp, err := a.authClient.Register(context.Background(), &types.RegisterRequest{
 		Email:    email,
 		Password: password,
 	})
@@ -19,7 +19,7 @@ func (a *Api) Register(email, password string) (string, error) {
 }
 
 func (a *Api) Login(email, password string) (string, error) {
-	resp, err := a.authClient.Login(context.Background(), &enterpriseTypes.LoginRequest{
+	resp, err := a.authClient.Login(context.Background(), &types.LoginRequest{
 		Email:    email,
 		Password: password,
 	})

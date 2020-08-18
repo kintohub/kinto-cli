@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+option go_package = "github.com/kintohub/kinto-cli/internal/types";
+
+import "google/protobuf/empty.proto";
+import "kkc_models.proto";
+
+message EnvironmentQueryRequest {
+    string id = 1;
+}
+
+message DeleteEnvironmentRequest {
+    string id = 1;
+}
+
+message CreateBlockRequest {
+    string envId = 1;
+    string name = 2;
+    RunConfig runConfig = 3;
+    BuildConfig buildConfig = 4;
+}
+
+message DeployBlockRequest {
+    string envId = 1;
+    string name = 2;
+    RunConfig runConfig = 3;
+    BuildConfig buildConfig = 4;
+}
+
+message BlockQueryRequest {
+    string envId = 1;
+    string name = 2;
+}
+
+message DeleteBlockRequest {
+    string envId = 1;
+    string name = 2;
+}
+
+message BlockUpdateResponse {
+    string name = 1;
+    string releaseId = 2;
+}
+
+message WatchBuildLogsRequest {
+    string releaseId = 1;
+    string blockName = 2;
+    string envId = 3;
+}
+
+message WatchConsoleLogsRequest {
+    string blockName = 1;
+    string envId = 2;
+}
+
+message UpdateBuildStatusRequest {
+    string blockName = 1;
+    string envId = 2;
+    string releaseId = 3;
+
+    BuildStatus status = 5;
+}
+
+message UpdateBuildStepRequest {
+    string name = 1;
+
+    BuildStatus status = 2;
+}
+
+message UpdateBuildStatusResponse {
+    string id = 1;
+}
+
+message KillBlockInstanceRequest {
+    string id = 1;
+    string envId = 2;
+}
+
+message RollbackBlockRequest {
+    string name = 1;
+    string envId = 2;
+    string releaseId = 3;
+}
+
+message CustomDomainNameRequest {
+    string envId = 1;
+    string blockName = 2;
+    string customDomainName = 3;
+    string CNAME = 4;
+}
+
+message CheckCustomDomainNameResponse {
+    bool isCNAMEOK = 1;
+    string CNAMEWanted = 2;
+    string CNAMEFound = 3;
+    bool isCertificateReady = 4;
+}
+
+message EnablePublicURLRequest {
+    string blockName = 1;
+    string envId = 2;
+    string releaseId = 3;
+}
+
+message DisablePublicURLRequest {
+    string blockName = 1;
+    string envId = 2;
+}
+
+message AbortBlockReleaseRequest {
+    string blockName = 1;
+    string releaseId = 2;
+    string envId = 3;
+}
+
+message TeleportRequest {
+    string envId = 1;
+    string blockId = 2;
+}
+
+message TeleportResponse {
+    string chiselHost = 1;
+    string chiselCredentials = 2;
+}
+
+service KintoKubeCoreService {
+    rpc CreateEnvironment (google.protobuf.Empty) returns (Environment) {}
+    rpc GetEnvironment (EnvironmentQueryRequest) returns (Environment) {}
+    rpc DeleteEnvironment (DeleteEnvironmentRequest) returns (google.protobuf.Empty) {}
+
+    rpc CreateBlock (CreateBlockRequest) returns (BlockUpdateResponse) {}
+    rpc DeployBlockUpdate (DeployBlockRequest) returns (BlockUpdateResponse) {}
+    rpc RollbackBlock (RollbackBlockRequest) returns (BlockUpdateResponse) {}
+    rpc GetBlocks (BlockQueryRequest) returns (Blocks) {}
+    rpc GetBlock (BlockQueryRequest) returns (Block) {}
+    rpc DeleteBlock (DeleteBlockRequest) returns (google.protobuf.Empty) {}
+    rpc SuspendBlock (BlockQueryRequest) returns (google.protobuf.Empty) {}
+    rpc WatchReleasesStatus (BlockQueryRequest) returns (stream ReleasesStatus) {}
+    rpc KillBlockInstance (KillBlockInstanceRequest) returns (google.protobuf.Empty) {}
+    rpc AbortRelease (AbortBlockReleaseRequest) returns (google.protobuf.Empty) {}
+
+    rpc WatchBuildLogs (WatchBuildLogsRequest) returns (stream Logs) {}
+    rpc UpdateBuildStatus(UpdateBuildStatusRequest) returns (UpdateBuildStatusResponse) {}
+    rpc WatchBlocksHealthStatuses(EnvironmentQueryRequest) returns (stream BlockStatuses) {}
+    rpc WatchJobsStatus(BlockQueryRequest) returns (stream JobStatus) {}
+    rpc WatchBlocksMetrics(BlockQueryRequest) returns (stream BlocksMetrics) {}
+
+    rpc WatchConsoleLogs(WatchConsoleLogsRequest) returns (stream ConsoleLog) {}
+
+    rpc GetKintoConfiguration(google.protobuf.Empty) returns (KintoConfiguration) {}
+
+    rpc CreateCustomDomainName(CustomDomainNameRequest) returns (google.protobuf.Empty) {}
+    rpc DeleteCustomDomainName(CustomDomainNameRequest) returns (google.protobuf.Empty) {}
+    rpc CheckCustomDomainName(CustomDomainNameRequest) returns (CheckCustomDomainNameResponse) {}
+
+    rpc EnablePublicURL(EnablePublicURLRequest) returns (google.protobuf.Empty) {}
+    rpc DisablePublicURL(DisablePublicURLRequest) returns (google.protobuf.Empty) {}
+
+    rpc StartTeleport(TeleportRequest) returns (stream TeleportResponse) {}
+}

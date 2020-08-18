@@ -3,12 +3,12 @@ package api
 import (
 	"context"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/kintohub/kinto-cli-go/internal/config"
-	enterpriseTypes "github.com/kintohub/kinto-enterprise/pkg/types"
+	"github.com/kintohub/kinto-cli/internal/config"
+	"github.com/kintohub/kinto-cli/internal/types"
 	"google.golang.org/grpc/metadata"
 )
 
-func (a *Api) GetClusterEnvironment(envId string) (*enterpriseTypes.ClusterEnvironment, error) {
+func (a *Api) GetClusterEnvironment(envId string) (*types.ClusterEnvironment, error) {
 	env := config.GetClusterEnvironment(envId)
 
 	if env == nil {
@@ -30,7 +30,7 @@ func (a *Api) GetClusterEnvironment(envId string) (*enterpriseTypes.ClusterEnvir
 	return env, nil
 }
 
-func (a *Api) GetClusterEnvironments() ([]*enterpriseTypes.ClusterEnvironment, error) {
+func (a *Api) GetClusterEnvironments() ([]*types.ClusterEnvironment, error) {
 	bearer := "Bearer " + config.GetAuthToken()
 	md := metadata.Pairs("Authorization", bearer)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
@@ -44,7 +44,7 @@ func (a *Api) GetClusterEnvironments() ([]*enterpriseTypes.ClusterEnvironment, e
 	return resp.Envs, err
 }
 
-func (a *Api) GetClusters() ([]*enterpriseTypes.PublicClusterInfo, error) {
+func (a *Api) GetClusters() ([]*types.PublicClusterInfo, error) {
 	resp, err := a.clusterClient.GetClusters(context.Background(), &empty.Empty{})
 
 	if err != nil {
@@ -56,7 +56,7 @@ func (a *Api) GetClusters() ([]*enterpriseTypes.PublicClusterInfo, error) {
 	return resp.Clusters, err
 }
 
-func (a *Api) GetPublicClusterInfo(clusterId string) (*enterpriseTypes.PublicClusterInfo, error) {
+func (a *Api) GetPublicClusterInfo(clusterId string) (*types.PublicClusterInfo, error) {
 	publicClusterInfo := config.GetPublicClusterInfo(clusterId)
 
 	if publicClusterInfo == nil {

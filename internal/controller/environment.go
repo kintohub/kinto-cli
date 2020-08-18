@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/kintohub/kinto-cli-go/internal/utils"
+	"github.com/kintohub/kinto-cli/internal/utils"
 	"github.com/olekukonko/tablewriter"
 	"os"
 )

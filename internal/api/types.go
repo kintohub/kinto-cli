@@ -3,9 +3,9 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/kintohub/kinto-cli-go/internal/config"
-	"github.com/kintohub/kinto-cli-go/internal/utils"
-	enterpriseTypes "github.com/kintohub/kinto-enterprise/pkg/types"
+	"github.com/kintohub/kinto-cli/internal/config"
+	"github.com/kintohub/kinto-cli/internal/types"
+	"github.com/kintohub/kinto-cli/internal/utils"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -14,7 +14,7 @@ type accessTokenManager struct {
 	clusterId      string
 	envId          string
 	authToken      string
-	clustersClient enterpriseTypes.ClusterServiceClient
+	clustersClient types.ClusterServiceClient
 }
 
 type RemoteConfig struct {
@@ -30,7 +30,7 @@ func (a *accessTokenManager) GetRequestMetadata(ctx context.Context, args ...str
 	md := metadata.Pairs("Authorization", bearer)
 	tokenCtx := metadata.NewOutgoingContext(ctx, md)
 
-	token, err := a.clustersClient.CreateAccessToken(tokenCtx, &enterpriseTypes.CreateAccessTokenRequest{
+	token, err := a.clustersClient.CreateAccessToken(tokenCtx, &types.CreateAccessTokenRequest{
 		ClusterId: a.clusterId,
 		EnvId:     a.envId,
 	})
@@ -47,6 +47,3 @@ func (a *accessTokenManager) GetRequestMetadata(ctx context.Context, args ...str
 func (a *accessTokenManager) RequireTransportSecurity() bool {
 	return true
 }
-
-
-

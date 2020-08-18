@@ -3,8 +3,8 @@ package api
 import (
 	"fmt"
 	chclient "github.com/jpillora/chisel/client"
-	"github.com/kintohub/kinto-cli-go/internal/config"
-	"github.com/kintohub/kinto-cli-go/internal/utils"
+	"github.com/kintohub/kinto-cli/internal/config"
+	"github.com/kintohub/kinto-cli/internal/utils"
 	"strconv"
 	"sync"
 	"time"
