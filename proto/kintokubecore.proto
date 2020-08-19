@@ -87,6 +87,7 @@ message CustomDomainNameRequest {
     string blockName = 2;
     string customDomainName = 3;
     string CNAME = 4;
+    RunConfig.Protocol protocol = 5;
 }
 
 message CheckCustomDomainNameResponse {
@@ -115,12 +116,11 @@ message AbortBlockReleaseRequest {
 
 message TeleportRequest {
     string envId = 1;
-    string blockId = 2;
+    string blockName = 2;
 }
 
 message TeleportResponse {
-    string chiselHost = 1;
-    string chiselCredentials = 2;
+    TeleportServiceData data = 1;
 }
 
 service KintoKubeCoreService {

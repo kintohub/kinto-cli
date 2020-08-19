@@ -68,6 +68,12 @@ message BuildConfig {
 }
 
 message RunConfig {
+    enum Protocol {
+        NOT_SET = 0;
+        HTTP = 1;
+        GRPC = 2;
+    }
+
     Block.Type type = 1;
     string port = 2;
     AutoScaling autoScaling = 3;
@@ -78,12 +84,14 @@ message RunConfig {
     string host = 8;
     bool costOptimizationEnabled = 9;
     bool sleepModeEnabled = 10;
+    Protocol protocol = 11;
 }
 
 message Repository {
     string url = 1;
     string accessToken = 2;
     string branch = 3;
+    string githubInstallationId = 4;
 }
 
 message JobSpec {
@@ -284,4 +292,9 @@ message JobStatus {
     State state = 2;
     int64 startTimestamp = 3;
     int64 endTimestamp = 4;
+}
+
+message TeleportServiceData {
+    string host = 1;
+    string credentials = 2;
 }
