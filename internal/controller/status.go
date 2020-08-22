@@ -35,7 +35,8 @@ func (c *Controller) Status() {
 		for _, block := range blocks {
 			latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)
 
-			if latestRelease.BuildConfig.Repository.Url == localGitUrl {
+			if latestRelease.BuildConfig.Repository.Url == localGitUrl ||
+				latestRelease.BuildConfig.Repository.Url == localGitUrl[:len(localGitUrl)-4] {
 				count = count + 1 /* To avoid rendering the table multiple times
 				if the repo is deployed more than once on KintoHub. */
 				table.Append([]string{

@@ -1,56 +1,76 @@
 package api
 
 import (
+	"context"
 	"fmt"
-	chclient "github.com/jpillora/chisel/client"
-	"github.com/kintohub/kinto-cli/internal/config"
+	"github.com/kintohub/kinto-cli/internal/types"
 	"github.com/kintohub/kinto-cli/internal/utils"
-	"strconv"
-	"sync"
-	"time"
+	"io"
 )
 
-func (a *Api) StartTeleport(blocksToForward []RemoteConfig) {
+func (a *Api) StartTeleport(blocksToForward []RemoteConfig, envId string, clusterId string) {
 
-	var remotes []string
-	var err error
-	var wg sync.WaitGroup
+	var host *types.TeleportResponse
 
-	for _, remote := range blocksToForward {
-		remotes = append(remotes, fmt.Sprintf(remote.FromHost+":"+strconv.Itoa(remote.FromPort)+
-			":"+remote.ToHost+":"+strconv.Itoa(remote.ToPort)))
-	}
-
-	chiselClient, err := chclient.NewClient(&chclient.Config{
-		KeepAlive:        time.Second,
-		MaxRetryInterval: time.Second,
-		Server:           config.ChiselHost,
-		Remotes:          remotes,
-	})
-	if err != nil {
-		utils.TerminateWithError(err)
-	}
-
-	chiselClient.Logger.Info = false
-
-	utils.WarningMessage("\nStarting Tunnel")
-
-	go func() {
-		err = chiselClient.Run()
-	}()
-	wg.Wait()
+	resp, err := a.getKubeCoreService(clusterId, envId).StartTeleport(
+		context.Background(), &types.TeleportRequest{EnvId: envId})
 
 	if err != nil {
 		utils.TerminateWithError(err)
 	}
 
-	for _, remote := range blocksToForward {
-		utils.InfoMessage(fmt.Sprintf("> Forwarding: %s:%d => %s:%d",
-			remote.FromHost, remote.FromPort, remote.ToHost, remote.ToPort))
-	}
+	for {
+		host, err = resp.Recv()
+		if err == io.EOF {
+			return
+		}
+		if err != nil {
+			utils.TerminateWithError(err)
+		}
 
-	utils.SuccessMessage("✓ Connected!")
-	defer chiselClient.Close()
-	utils.WarningMessage("\nPress any key to close the tunnel")
-	fmt.Scanln()
+		fmt.Print(host.Data.Host)
+	}
+	/*	var remotes []string
+		var err error
+		var wg sync.WaitGroup
+
+		for _, remote := range blocksToForward {
+			remotes = append(remotes, fmt.Sprintf(remote.FromHost+":"+strconv.Itoa(remote.FromPort)+
+				":"+remote.ToHost+":"+strconv.Itoa(remote.ToPort)))
+		}
+
+		chiselClient, err := chclient.NewClient(&chclient.Config{
+			KeepAlive:        time.Second,
+			MaxRetryInterval: time.Second,
+			Server:           config.ChiselHost,
+			Remotes:          remotes,
+		})
+		if err != nil {
+			utils.TerminateWithError(err)
+		}
+
+		chiselClient.Logger.Info = false
+
+		utils.WarningMessage("\nStarting Tunnel")
+
+		go func() {
+			err = chiselClient.Run()
+		}()
+		wg.Wait()
+
+		if err != nil {
+			utils.TerminateWithError(err)
+		}
+
+		for _, remote := range blocksToForward {
+			utils.InfoMessage(fmt.Sprintf("> Forwarding: %s:%d => %s:%d",
+				remote.FromHost, remote.FromPort, remote.ToHost, remote.ToPort))
+		}
+
+		utils.SuccessMessage("✓ Connected!")
+		defer chiselClient.Close()
+		utils.WarningMessage("\nPress any key to close the tunnel")
+		fmt.Scanln()
+
+	*/
 }

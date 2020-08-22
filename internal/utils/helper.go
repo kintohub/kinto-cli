@@ -86,7 +86,6 @@ func GetLocalGitUrl() string {
 	}
 
 	localGitUrl = strings.Trim(localGitUrl, "= ")
-	localGitUrl = strings.Trim(localGitUrl, ".git")
 
 	return localGitUrl
 }

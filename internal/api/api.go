@@ -20,7 +20,7 @@ type ApiInterface interface {
 	GetClusters() ([]*types.PublicClusterInfo, error)
 	Login(email, password string) (string, error)
 	GetBlocks(envId string) ([]*types.Block, error)
-	StartTeleport(blocksToForward []RemoteConfig)
+	StartTeleport(blocksToForward []RemoteConfig,envId string, clusterId string)
 }
 
 // Due to the nature of APIs,
