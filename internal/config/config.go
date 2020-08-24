@@ -42,9 +42,9 @@ func CreateConfig(path string, configName string) {
 			path,
 			configName,
 		))
+		//To avoid cyclic dependency error while importing
 		if err != nil {
 			color.Red.Println("An error occurred: %v", err)
-			//To avoid cyclic dependency error while importing
 			os.Exit(1)
 		}
 	}

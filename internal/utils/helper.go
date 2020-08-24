@@ -52,7 +52,7 @@ func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Relea
 }
 
 //CheckPort takes a port number and checks if its available.
-//If available, will return the port as it is. If not, error will be thrown.
+//If available, will return the port as it is. If not, terminate.
 func CheckPort(port int) int {
 
 	address := fmt.Sprintf(":%d", port)
@@ -66,32 +66,40 @@ func CheckPort(port int) int {
 	return port
 }
 
-func GetLocalGitUrl() string {
-	conf := goconf.New()
-	err := conf.Parse("./.git/config")
+// kinda custom function overloading.
+// Takes 0 or 1 arguments. passing 0 args will make the fn just check if the local .git/config file exists or not.
+// Passing 1 arg (repo name) will compare the passed arg with local git repo url from .git/config
+func GetGitDetails(url ...string) bool {
 
-	if err != nil {
-		TerminateWithCustomError("Not a Git Repo. Please initialize the repo with Git first")
+	if url == nil {
+		conf := goconf.New()
+		err := conf.Parse("./.git/config")
+		if err != nil {
+			TerminateWithCustomError("Not a Git Repo. Please initialize the repo with Git first")
+
+		}
+	} else {
+		conf := goconf.New()
+		_ = conf.Parse("./.git/config")
+		remote := conf.Get("remote \"origin\"")
+		if remote == nil {
+			// In case if git ever changes their config structure.
+			TerminateWithCustomError("Cannot parse Git config")
+		}
+		localGitUrl, err := remote.String("url")
+		if err != nil {
+			TerminateWithError(err)
+		}
+		localGitUrl = strings.Trim(localGitUrl, "= ")
+
+		if url[0] == localGitUrl || url[0] == localGitUrl[:len(localGitUrl)-4] {
+			return true
+		}
 	}
-	remote := conf.Get("remote \"origin\"")
-
-	if remote == nil {
-		// In case if git ever changes their config structure.
-		TerminateWithError(err)
-	}
-
-	localGitUrl, err := remote.String("url")
-	if err != nil {
-		TerminateWithError(err)
-	}
-
-	localGitUrl = strings.Trim(localGitUrl, "= ")
-
-	return localGitUrl
+	return false
 }
 
 func CheckLogin() {
-	//TODO : remove viper dependency. Using `config` creates cyclic imports.
 	email := config.GetEmail()
 	token := config.GetAuthToken()
 

@@ -10,7 +10,7 @@ func (c *Controller) Teleport() {
 	utils.CheckLogin()
 	utils.StartSpinner()
 
-	localGitUrl := utils.GetLocalGitUrl()
+	utils.GetGitDetails()
 	envs, err := c.api.GetClusterEnvironments()
 
 	if err != nil {
@@ -34,8 +34,7 @@ func (c *Controller) Teleport() {
 			a list of Env that have any Svs associated with the local Git Repo. */
 
 			if latestRelease != nil {
-				if latestRelease.BuildConfig.Repository.Url == localGitUrl ||
-					latestRelease.BuildConfig.Repository.Url == localGitUrl[:len(localGitUrl)-4] {
+				if utils.GetGitDetails(latestRelease.BuildConfig.Repository.Url) {
 					envName = append(envName, env.Name)
 					envDetails[env.Name] = env.Id
 					clusterId = env.ClusterId
@@ -61,7 +60,7 @@ func (c *Controller) configureTeleport(envId string, clusterId string) {
 	utils.StartSpinner()
 	var blocksToForward []api.RemoteConfig
 	inc := 0
-	localGitUrl := utils.GetLocalGitUrl()
+	utils.GetGitDetails()
 	blocks, err := c.api.GetBlocks(envId)
 	if err != nil {
 		utils.TerminateWithError(err)
@@ -72,8 +71,7 @@ func (c *Controller) configureTeleport(envId string, clusterId string) {
 
 		if latestRelease != nil {
 
-			if latestRelease.BuildConfig.Repository.Url != localGitUrl ||
-				latestRelease.BuildConfig.Repository.Url == localGitUrl[:len(localGitUrl)-4]{
+			if !utils.GetGitDetails(latestRelease.BuildConfig.Repository.Url) {
 				port := config.LocalPort + inc
 				remote := api.RemoteConfig{FromHost: "localhost", FromPort: utils.CheckPort(port),
 					ToHost: block.Name, ToPort: 80}
@@ -86,7 +84,7 @@ func (c *Controller) configureTeleport(envId string, clusterId string) {
 	if len(blocksToForward) != 0 {
 
 		utils.StopSpinner()
-		c.api.StartTeleport(blocksToForward,envId,clusterId)
+		c.api.StartTeleport(blocksToForward, envId, clusterId)
 
 	} else {
 		utils.WarningMessage("No service/s found in this environment to teleport into!")
