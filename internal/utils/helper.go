@@ -92,7 +92,7 @@ func GetGitDetails(url ...string) bool {
 		}
 		localGitUrl = strings.Trim(localGitUrl, "= ")
 
-		if url[0] == localGitUrl || url[0] == localGitUrl[:len(localGitUrl)-4] {
+		if strings.Replace(url[0], ".git", "", -1) == strings.Replace(localGitUrl, ".git", "", -1) {
 			return true
 		}
 	}

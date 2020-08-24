@@ -9,6 +9,8 @@ import (
 	utilsGrpc "github.com/kintohub/utils-go/server/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/keepalive"
+	"time"
 )
 
 var (
@@ -20,7 +22,7 @@ type ApiInterface interface {
 	GetClusters() ([]*types.PublicClusterInfo, error)
 	Login(email, password string) (string, error)
 	GetBlocks(envId string) ([]*types.Block, error)
-	StartTeleport(blocksToForward []RemoteConfig,envId string, clusterId string)
+	StartTeleport(blocksToForward []RemoteConfig, envId string, clusterId string)
 }
 
 // Due to the nature of APIs,
@@ -80,6 +82,11 @@ func createKintoKubeCoreClientOrDie(
 			clustersClient: clustersClient,
 		}),
 		dialOption,
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:                10 * time.Second, // send pings every 10 seconds if there is no activity
+			Timeout:             time.Second * 5,  // wait 1 second for ping ack before considering the connection dead
+			PermitWithoutStream: true,             // send pings even without active streams
+		}),
 	)
 
 	if err != nil {
