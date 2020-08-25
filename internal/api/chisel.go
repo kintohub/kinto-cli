@@ -44,6 +44,7 @@ func (a *Api) StartTeleport(blocksToForward []RemoteConfig, envId string, cluste
 		Server:           "https://" + host.Data.Host,
 		Auth:             host.Data.Credentials,
 		Remotes:          remotes,
+		KeepAlive:        10 * time.Second,
 	})
 	if err != nil {
 		utils.TerminateWithError(err)
