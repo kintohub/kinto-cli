@@ -15,8 +15,12 @@ func (a *Api) StartTeleport(blocksToForward []RemoteConfig, envId string, cluste
 
 	var host *types.TeleportResponse
 
+	// Default time to cancel is 30 minutes for our nginx gateway
+	// TODO: Move to env var / build arg
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(time.Minute*30))
 	resp, err := a.getKubeCoreService(clusterId, envId).StartTeleport(
-		context.Background(), &types.TeleportRequest{EnvId: envId})
+		ctx, &types.TeleportRequest{EnvId: envId})
+	defer cancel()
 
 	if err != nil {
 		utils.TerminateWithError(err)
@@ -46,6 +50,8 @@ func (a *Api) StartTeleport(blocksToForward []RemoteConfig, envId string, cluste
 		Remotes:          remotes,
 		KeepAlive:        10 * time.Second,
 	})
+	defer chiselClient.Close()
+
 	if err != nil {
 		utils.TerminateWithError(err)
 	}
@@ -80,8 +86,6 @@ func (a *Api) StartTeleport(blocksToForward []RemoteConfig, envId string, cluste
 	}
 
 	utils.SuccessMessage("Connected!")
-	defer chiselClient.Close()
-	defer resp.CloseSend()
 	utils.NoteMessage("\nPress any key to close the tunnel")
 	fmt.Scanln()
 }
