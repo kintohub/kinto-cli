@@ -24,24 +24,23 @@ func StopSpinner() {
 	s.Stop()
 }
 
-func InfoMessage(message string) {
-	StopSpinner() //To stop any active spinners, if any.
-	color.Gray.Println("INFO    ",message)
-}
-
 func NoteMessage(message string) {
 	StopSpinner() //To stop any active spinners, if any.
-	color.Magenta.Println("NOTE    ",message)
+	color.Bold.Println(message)
 }
+
+func InfoMessage(message string) {
+	StopSpinner()
+	color.Gray.Println("INFO:    ",message)
+}
+
 func SuccessMessage(message string) {
 	StopSpinner()
-	//color.BgGreen.Printf("SUCCESS:")
-	color.Green.Println("SUCCESS ",message)
+	color.Green.Println("SUCCESS: ",message)
 }
 
 func WarningMessage(message string) {
 	StopSpinner()
-	//color.BgYellow.Printf("WARNING:")
-	color.Yellow.Println("WARNING ",message)
+	color.Yellow.Println("WARNING: ",message)
 }
 

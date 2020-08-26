@@ -8,6 +8,7 @@ import (
 	"github.com/kintohub/kinto-cli/internal/types"
 	"github.com/rs/zerolog/log"
 	"net"
+	"strconv"
 	"strings"
 )
 
@@ -97,6 +98,28 @@ func GetGitDetails(url ...string) bool {
 		}
 	}
 	return false
+}
+
+func GetBlockPort(block *types.Block) int {
+
+	if strings.Contains(block.Name, "redis") {
+		return config.RedisPort
+	} else if strings.Contains(block.Name, "postgres") {
+		return config.PostgresPort
+	} else if strings.Contains(block.Name, "mongodb") {
+		return config.MongoPort
+	} else if strings.Contains(block.Name, "minio") {
+		return config.MinioPort
+	} else if strings.Contains(block.Name, "mysql") {
+		return config.MysqlPort
+	} else {
+		resp := GetLatestSuccessfulRelease(block.Releases).RunConfig.Port
+		port, err := strconv.Atoi(resp)
+		if err != nil {
+			TerminateWithError(err)
+		}
+		return port
+	}
 }
 
 func CheckLogin() {

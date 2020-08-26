@@ -52,7 +52,7 @@ func (a *Api) StartTeleport(blocksToForward []RemoteConfig, envId string, cluste
 
 	//chiselClient.Logger.Info = false
 
-	utils.NoteMessage("Starting Tunnel")
+	utils.InfoMessage("Starting Tunnel")
 
 	// Run chisel client in background
 	go func() {
@@ -79,8 +79,9 @@ func (a *Api) StartTeleport(blocksToForward []RemoteConfig, envId string, cluste
 			remote.FromHost, remote.FromPort, remote.ToHost, remote.ToPort))
 	}
 
-	utils.SuccessMessage("✓ Connected!")
+	utils.SuccessMessage("Connected!")
 	defer chiselClient.Close()
-	utils.NoteMessage("Press any key to close the tunnel")
+	defer resp.CloseSend()
+	utils.NoteMessage("\nPress any key to close the tunnel")
 	fmt.Scanln()
 }

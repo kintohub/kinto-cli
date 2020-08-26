@@ -74,7 +74,7 @@ func (c *Controller) configureTeleport(envId string, clusterId string) {
 			if !utils.GetGitDetails(latestRelease.BuildConfig.Repository.Url) {
 				port := config.LocalPort + inc
 				remote := api.RemoteConfig{FromHost: "localhost", FromPort: utils.CheckPort(port),
-					ToHost: block.Name, ToPort: 80}
+					ToHost: block.Name, ToPort: utils.GetBlockPort(block)}
 				blocksToForward = append(blocksToForward, remote)
 				inc += 1
 			}

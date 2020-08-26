@@ -14,7 +14,11 @@ const (
 	publicClustersKey      = "publicClusters"
 	clusterEnvironmentsKey = "clusterEnvironments"
 	LocalPort              = 5360
-	ChiselHost             = "https://chisel-5f194.vegeta.kintohub.net"
+	RedisPort              = 6379
+	PostgresPort           = 5432
+	MongoPort              = 27017
+	MinioPort              = 9000
+	MysqlPort              = 3306
 )
 
 var Version = "v0.1" //Needs to be a non-const for passing version at build time
