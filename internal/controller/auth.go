@@ -4,24 +4,32 @@ import (
 	"fmt"
 	"github.com/kintohub/kinto-cli/internal/config"
 	"github.com/kintohub/kinto-cli/internal/utils"
-	"os"
 	"strings"
 )
 
-func (c *Controller) Init() {
+func (c *Controller) Init(masterHost string) {
 
-	utils.CheckLogin()
-	// TODO : Create a .kinto file and run init code
-	_, err := os.Stat(".kinto")
-	if os.IsNotExist(err) {
-		_, err := os.Create(".kinto")
-		if err != nil {
-			utils.TerminateWithError(err)
-		}
-		utils.SuccessMessage("Repo initialized")
+	if masterHost == "Default" || masterHost == "default" {
+		config.SetMasterHost(config.DefaultMasterHost)
+		config.Save()
 	} else {
-		utils.WarningMessage("Repo is already initialized")
+		config.SetMasterHost(masterHost)
+		config.Save()
 	}
+	/*	utils.CheckLogin()
+		// TODO : Create a .kinto file and run init code
+		_, err := os.Stat(".kinto")
+		if os.IsNotExist(err) {
+			_, err := os.Create(".kinto")
+			if err != nil {
+				utils.TerminateWithError(err)
+			}
+			utils.SuccessMessage("Repo initialized")
+		} else {
+			utils.WarningMessage("Repo is already initialized")
+		}
+
+	*/
 
 }
 

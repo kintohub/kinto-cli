@@ -8,7 +8,11 @@ import (
 	"github.com/kintohub/kinto-cli/internal/types"
 	"github.com/rs/zerolog/log"
 	"net"
+	"os"
+	"os/signal"
+	"strconv"
 	"strings"
+	"syscall"
 )
 
 func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Release {
@@ -52,7 +56,7 @@ func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Relea
 }
 
 //CheckPort takes a port number and checks if its available.
-//If available, will return the port as it is. If not, error will be thrown.
+//If available, will return the port as it is. If not, terminate.
 func CheckPort(port int) int {
 
 	address := fmt.Sprintf(":%d", port)
@@ -66,37 +70,75 @@ func CheckPort(port int) int {
 	return port
 }
 
-func GetLocalGitUrl() string {
-	conf := goconf.New()
-	err := conf.Parse("./.git/config")
+// kinda custom function overloading.
+// Takes 0 or 1 arguments. passing 0 args will make the fn just check if the local .git/config file exists or not.
+// Passing 1 arg (repo name) will compare the passed arg with local git repo url from .git/config
+func GetGitDetails(url ...string) bool {
 
-	if err != nil {
-		TerminateWithCustomError("Not a Git Repo. Please initialize the repo with Git first")
+	if url == nil {
+		conf := goconf.New()
+		err := conf.Parse("./.git/config")
+		if err != nil {
+			TerminateWithCustomError("Not a Git Repo. Please initialize the repo with Git first")
+
+		}
+	} else {
+		conf := goconf.New()
+		_ = conf.Parse("./.git/config")
+		remote := conf.Get("remote \"origin\"")
+		if remote == nil {
+			// In case if git ever changes their config structure.
+			TerminateWithCustomError("Cannot parse Git config")
+		}
+		localGitUrl, err := remote.String("url")
+		if err != nil {
+			TerminateWithError(err)
+		}
+		localGitUrl = strings.Trim(localGitUrl, "= ")
+
+		if strings.Replace(url[0], ".git", "", -1) == strings.Replace(localGitUrl, ".git", "", -1) {
+			return true
+		}
 	}
-	remote := conf.Get("remote \"origin\"")
+	return false
+}
 
-	if remote == nil {
-		// In case if git ever changes their config structure.
-		TerminateWithError(err)
+func GetBlockPort(block *types.Block) int {
+
+	if strings.Contains(block.Name, "redis") {
+		return config.RedisPort
+	} else if strings.Contains(block.Name, "postgres") {
+		return config.PostgresPort
+	} else if strings.Contains(block.Name, "mongodb") {
+		return config.MongoPort
+	} else if strings.Contains(block.Name, "minio") {
+		return config.MinioPort
+	} else if strings.Contains(block.Name, "mysql") {
+		return config.MysqlPort
+	} else {
+		resp := GetLatestSuccessfulRelease(block.Releases).RunConfig.Port
+		port, err := strconv.Atoi(resp)
+		if err != nil {
+			TerminateWithError(err)
+		}
+		return port
 	}
-
-	localGitUrl, err := remote.String("url")
-	if err != nil {
-		TerminateWithError(err)
-	}
-
-	localGitUrl = strings.Trim(localGitUrl, "= ")
-	localGitUrl = strings.Trim(localGitUrl, ".git")
-
-	return localGitUrl
 }
 
 func CheckLogin() {
-	//TODO : remove viper dependency. Using `config` creates cyclic imports.
 	email := config.GetEmail()
 	token := config.GetAuthToken()
 
 	if email == "" || token == "" {
 		TerminateWithCustomError("Please log-in into your account first")
 	}
+}
+
+func CloseCli() {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		TerminateWithCustomError("Aborted!")
+	}()
 }

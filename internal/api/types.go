@@ -7,6 +7,7 @@ import (
 	"github.com/kintohub/kinto-cli/internal/types"
 	"github.com/kintohub/kinto-cli/internal/utils"
 	"google.golang.org/grpc/metadata"
+	"time"
 )
 
 // Implements grpc PerRPCCredentials
@@ -28,7 +29,9 @@ func (a *accessTokenManager) GetRequestMetadata(ctx context.Context, args ...str
 	// TODO: store + check if expired logic
 	bearer := "Bearer " + config.GetAuthToken()
 	md := metadata.Pairs("Authorization", bearer)
-	tokenCtx := metadata.NewOutgoingContext(ctx, md)
+	clientDeadline := time.Now().Add(2 * time.Hour)
+	outgoingCtx, _ := context.WithDeadline(ctx, clientDeadline)
+	tokenCtx := metadata.NewOutgoingContext(outgoingCtx, md)
 
 	token, err := a.clustersClient.CreateAccessToken(tokenCtx, &types.CreateAccessTokenRequest{
 		ClusterId: a.clusterId,

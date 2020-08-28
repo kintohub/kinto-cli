@@ -13,11 +13,32 @@ const (
 	emailKey               = "emailKey"
 	publicClustersKey      = "publicClusters"
 	clusterEnvironmentsKey = "clusterEnvironments"
+	masterHostKey          = "masterHost"
+	//TODO: Remove once ports are on kkc run config for catalog.
 	LocalPort              = 5360
-	ChiselHost             = "https://chisel-5f194.vegeta.kintohub.net"
+	RedisPort              = 6379
+	PostgresPort           = 5432
+	MongoPort              = 27017
+	MinioPort              = 9000
+	MysqlPort              = 3306
 )
 
-var Version = "v0.1" //Needs to be a non-const for passing version at build time
+var DefaultMasterHost = "master.us1.kintohub.com:443"
+var Version = "v0.0.1" //Needs to be a non-const for passing version at build time
+
+func GetMasterHost() string {
+	masterHost := viper.GetString(masterHostKey)
+	if masterHost == "" {
+		return DefaultMasterHost
+	}
+	return masterHost
+}
+
+func SetMasterHost(masterHost string) {
+	viper.Set(masterHostKey, masterHost)
+	SetAuthToken("")
+	SetEmail("")
+}
 
 func AddConfigPath(path string) {
 	viper.AddConfigPath(path)
@@ -42,9 +63,9 @@ func CreateConfig(path string, configName string) {
 			path,
 			configName,
 		))
+		//To avoid cyclic dependency error while importing
 		if err != nil {
 			color.Red.Println("An error occurred: %v", err)
-			//To avoid cyclic dependency error while importing
 			os.Exit(1)
 		}
 	}

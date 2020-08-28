@@ -5,7 +5,7 @@ import (
 )
 
 type ControllerInterface interface {
-	Init()
+	Init(masterHost string)
 	Login()
 	Environment()
 	Version()

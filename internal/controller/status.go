@@ -10,7 +10,7 @@ func (c *Controller) Status() {
 	utils.CheckLogin()
 	utils.StartSpinner()
 
-	localGitUrl := utils.GetLocalGitUrl()
+	utils.GetGitDetails()
 	var count = 0
 	envs, err := c.api.GetClusterEnvironments()
 
@@ -35,13 +35,15 @@ func (c *Controller) Status() {
 		for _, block := range blocks {
 			latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)
 
-			if latestRelease.BuildConfig.Repository.Url == localGitUrl {
-				count = count + 1 /* To avoid rendering the table multiple times
-				if the repo is deployed more than once on KintoHub. */
-				table.Append([]string{
-					env.Name,
-					block.Name,
-				})
+			if latestRelease != nil {
+				if utils.GetGitDetails(latestRelease.BuildConfig.Repository.Url) {
+					count = count + 1 /* To avoid rendering the table multiple times
+					if the repo is deployed more than once on KintoHub. */
+					table.Append([]string{
+						env.Name,
+						block.Name,
+					})
+				}
 			}
 		}
 	}

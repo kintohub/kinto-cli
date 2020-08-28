@@ -4,14 +4,13 @@ import (
 	"github.com/kintohub/kinto-cli/internal/api"
 	"github.com/kintohub/kinto-cli/internal/config"
 	"github.com/kintohub/kinto-cli/internal/utils"
-	"strings"
 )
 
 func (c *Controller) Teleport() {
 	utils.CheckLogin()
 	utils.StartSpinner()
 
-	localGitUrl := utils.GetLocalGitUrl()
+	utils.GetGitDetails()
 	envs, err := c.api.GetClusterEnvironments()
 
 	if err != nil {
@@ -19,6 +18,7 @@ func (c *Controller) Teleport() {
 	}
 
 	var envName []string
+	var clusterId string
 	envDetails := make(map[string]string)
 	for _, env := range envs {
 
@@ -32,9 +32,13 @@ func (c *Controller) Teleport() {
 
 			/* Initial Env filter is done on basis of localGitUrl to present
 			a list of Env that have any Svs associated with the local Git Repo. */
-			if latestRelease.BuildConfig.Repository.Url == localGitUrl {
-				envName = append(envName, env.Name)
-				envDetails[env.Name] = env.Id
+
+			if latestRelease != nil {
+				if utils.GetGitDetails(latestRelease.BuildConfig.Repository.Url) {
+					envName = append(envName, env.Name)
+					envDetails[env.Name] = env.Id
+					clusterId = env.ClusterId
+				}
 			}
 		}
 	}
@@ -44,7 +48,7 @@ func (c *Controller) Teleport() {
 	if len(envDetails) != 0 {
 		utils.StopSpinner()
 		selectedEnvId := TeleportPrompt(envName, envDetails)
-		c.configureTeleport(selectedEnvId)
+		c.configureTeleport(selectedEnvId, clusterId)
 
 	} else {
 		utils.WarningMessage("No environment/s found to teleport into!")
@@ -52,12 +56,11 @@ func (c *Controller) Teleport() {
 
 }
 
-func (c *Controller) configureTeleport(envId string) {
+func (c *Controller) configureTeleport(envId string, clusterId string) {
 	utils.StartSpinner()
 	var blocksToForward []api.RemoteConfig
-
 	inc := 0
-	localGitUrl := utils.GetLocalGitUrl()
+	utils.GetGitDetails()
 	blocks, err := c.api.GetBlocks(envId)
 	if err != nil {
 		utils.TerminateWithError(err)
@@ -66,22 +69,22 @@ func (c *Controller) configureTeleport(envId string) {
 	for _, block := range blocks {
 		latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)
 
-		if latestRelease.BuildConfig.Repository.Url != localGitUrl &&
-			// TODO : need to remove this check once chisel is dealt with
-			!(strings.Contains(latestRelease.BuildConfig.Repository.Url, "chisel")) {
+		if latestRelease != nil {
 
-			port := config.LocalPort + inc
-			remote := api.RemoteConfig{FromHost: "localhost", FromPort: utils.CheckPort(port),
-				ToHost: block.Name, ToPort: 80}
-			blocksToForward = append(blocksToForward, remote)
-			inc += 1
+			if !utils.GetGitDetails(latestRelease.BuildConfig.Repository.Url) {
+				port := config.LocalPort + inc
+				remote := api.RemoteConfig{FromHost: "localhost", FromPort: utils.CheckPort(port),
+					ToHost: block.Name, ToPort: utils.GetBlockPort(block)}
+				blocksToForward = append(blocksToForward, remote)
+				inc += 1
+			}
 		}
 	}
 
 	if len(blocksToForward) != 0 {
 
 		utils.StopSpinner()
-		c.api.StartTeleport(blocksToForward)
+		c.api.StartTeleport(blocksToForward, envId, clusterId)
 
 	} else {
 		utils.WarningMessage("No service/s found in this environment to teleport into!")
