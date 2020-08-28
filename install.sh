@@ -15,8 +15,8 @@ OUT_DIR="/usr/local/bin"
 NEED_SUDO=0
 
 #CLI related values
-OWNER="sumitkolhe"
-REPO_NAME="kintocli"
+OWNER="kintohub"
+REPO_NAME="kinto-cli"
 CLI_NAME="kinto"  #will be the final name of the CLI command.
 GH="https://github.com"
 
@@ -74,7 +74,7 @@ function install {
 	LATEST_VERSION=$(getLatestReleaseVersion)
 	if [ ! $LATEST_VERSION ]; then
 		echo "${YELLOW}"
-		log "Failed while attempting to install Kinot CLI. Please install manually:"
+		log "Failed while attempting to install Kinto CLI. Please install manually:"
 		echo ""
 		log "1. Open your web browser and go to https://github.com/${OWNER}/${REPO_NAME}/releases"
 		log "2. Download the CLI from latest release for your platform."
