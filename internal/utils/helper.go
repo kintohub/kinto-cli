@@ -8,8 +8,11 @@ import (
 	"github.com/kintohub/kinto-cli/internal/types"
 	"github.com/rs/zerolog/log"
 	"net"
+	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 )
 
 func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Release {
@@ -129,4 +132,13 @@ func CheckLogin() {
 	if email == "" || token == "" {
 		TerminateWithCustomError("Please log-in into your account first")
 	}
+}
+
+func CloseCli() {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		TerminateWithCustomError("Aborted!")
+	}()
 }

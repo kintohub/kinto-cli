@@ -21,7 +21,16 @@ const (
 	MysqlPort              = 3306
 )
 
-var Version = "v0.1" //Needs to be a non-const for passing version at build time
+var MasterHost = "master.us1.kintohub.com:443"
+var Version = "v0.0.1" //Needs to be a non-const for passing version at build time
+
+func GetDefaultHost() string {
+	return MasterHost
+}
+
+func SetDefaultHost(masterHost string) {
+	MasterHost = masterHost
+}
 
 func AddConfigPath(path string) {
 	viper.AddConfigPath(path)

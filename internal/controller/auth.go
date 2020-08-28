@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"github.com/kintohub/kinto-cli/internal/config"
 	"github.com/kintohub/kinto-cli/internal/utils"
-	"os"
 	"strings"
 )
 
 func (c *Controller) Init() {
 
-	utils.CheckLogin()
+/*	utils.CheckLogin()
 	// TODO : Create a .kinto file and run init code
 	_, err := os.Stat(".kinto")
 	if os.IsNotExist(err) {
@@ -22,6 +21,8 @@ func (c *Controller) Init() {
 	} else {
 		utils.WarningMessage("Repo is already initialized")
 	}
+
+ */
 
 }
 

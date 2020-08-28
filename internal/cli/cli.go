@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/kintohub/kinto-cli/internal/config"
 	"github.com/kintohub/kinto-cli/internal/controller"
-	"github.com/kintohub/kinto-cli/internal/utils"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"os"
@@ -31,7 +30,7 @@ func NewCliOrDie() CliInterface {
 	}
 
 	rootCmd.PersistentFlags().StringP(
-		"host", "", "master.vegeta.kintohub.net:443", "target kintohub host")
+		"master", "", config.GetDefaultHost(), "Set KintoHub Master Host")
 
 	return &Cli{
 		rootCmd: rootCmd,
@@ -39,13 +38,11 @@ func NewCliOrDie() CliInterface {
 }
 
 func (c *Cli) GetHostFlag() string {
-	host := c.rootCmd.PersistentFlags().Lookup("host")
-
-	if host == nil {
-		utils.TerminateWithError(errors.New("internal error - host flag was not setup correcting"))
+	host, _ := c.rootCmd.Flags().GetString("master")
+	if host != "" {
+		config.SetDefaultHost(host)
 	}
-
-	return host.Value.String()
+	return config.GetDefaultHost()
 }
 
 func initConfig() {
@@ -67,6 +64,7 @@ func initConfig() {
 
 func (c *Cli) Execute(controller controller.ControllerInterface) {
 	c.rootCmd.AddCommand(
+		createInitCommand(controller),
 		createVersionCommand(controller),
 		createLoginCommand(controller),
 		createEnvironmentCommand(controller),
@@ -78,6 +76,17 @@ func (c *Cli) Execute(controller controller.ControllerInterface) {
 	if err := c.rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
+	}
+}
+func createInitCommand(controller controller.ControllerInterface) *cobra.Command {
+	return &cobra.Command{
+		Use:   "init",
+		Short: "Login to an existing KintoHub account",
+		Long:  `Helps you to log in an already existing KintoHub account`,
+		Run: func(cmd *cobra.Command, args []string) {
+
+			//controller.Init()
+		},
 	}
 }
 

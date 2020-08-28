@@ -7,5 +7,5 @@ import (
 )
 
 func (c Controller) Version() {
-	utils.InfoMessage(fmt.Sprintf("Kinto Command Line Interface (CLI) %s", config.Version))
+	utils.NoteMessage(fmt.Sprintf("Kinto Command Line Interface (CLI) %s", config.Version))
 }
