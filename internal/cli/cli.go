@@ -39,10 +39,10 @@ func NewCliOrDie() CliInterface {
 
 func (c *Cli) GetHostFlag() string {
 	host, _ := c.rootCmd.Flags().GetString("master")
-	if host != "" {
-		config.SetMasterHost(host)
+	if host == "" {
+		return config.GetMasterHost()
 	}
-	return config.GetMasterHost()
+	return host
 }
 
 func initConfig() {
