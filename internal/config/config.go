@@ -27,16 +27,16 @@ var Version = "v0.0.1" //Needs to be a non-const for passing version at build ti
 
 func GetMasterHost() string {
 	masterHost := viper.GetString(masterHostKey)
-
 	if masterHost == "" {
 		return DefaultMasterHost
 	}
-
 	return masterHost
 }
 
 func SetMasterHost(masterHost string) {
 	viper.Set(masterHostKey, masterHost)
+	SetAuthToken("")
+	SetEmail("")
 }
 
 func AddConfigPath(path string) {

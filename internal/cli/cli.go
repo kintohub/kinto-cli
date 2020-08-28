@@ -20,7 +20,7 @@ type Cli struct {
 }
 
 func NewCliOrDie() CliInterface {
-	cobra.OnInitialize(initConfig)
+	initConfig()
 
 	var rootCmd = &cobra.Command{
 		Use:   "kinto",
@@ -29,19 +29,13 @@ func NewCliOrDie() CliInterface {
                Documentation is available at https://docs.kintohub.com`,
 	}
 
-	rootCmd.PersistentFlags().StringP(
-		"master", "", config.GetMasterHost(), "Set KintoHub Master Host")
-
 	return &Cli{
 		rootCmd: rootCmd,
 	}
 }
 
 func (c *Cli) GetHostFlag() string {
-	host, _ := c.rootCmd.Flags().GetString("master")
-	if host == "" {
-		return config.GetMasterHost()
-	}
+	host := config.GetMasterHost()
 	return host
 }
 
@@ -84,8 +78,7 @@ func createInitCommand(controller controller.ControllerInterface) *cobra.Command
 		Short: "Login to an existing KintoHub account",
 		Long:  `Helps you to log in an already existing KintoHub account`,
 		Run: func(cmd *cobra.Command, args []string) {
-
-			//controller.Init()
+			controller.Init(args[0])
 		},
 	}
 }

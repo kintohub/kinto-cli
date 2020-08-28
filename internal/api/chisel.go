@@ -56,7 +56,7 @@ func (a *Api) StartTeleport(blocksToForward []RemoteConfig, envId string, cluste
 		utils.TerminateWithError(err)
 	}
 
-	//chiselClient.Logger.Info = false
+	chiselClient.Logger.Info = false
 
 	utils.InfoMessage("Starting Tunnel")
 
