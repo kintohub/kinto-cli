@@ -14,6 +14,7 @@ const (
 	publicClustersKey      = "publicClusters"
 	clusterEnvironmentsKey = "clusterEnvironments"
 	masterHostKey          = "masterHost"
+	//TODO: Remove once ports are on kkc run config for catalog.
 	LocalPort              = 5360
 	RedisPort              = 6379
 	PostgresPort           = 5432

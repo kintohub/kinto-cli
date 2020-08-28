@@ -45,7 +45,7 @@ func (a *Api) StartTeleport(blocksToForward []RemoteConfig, envId string, cluste
 	chiselClient, err := chclient.NewClient(&chclient.Config{
 		MaxRetryInterval: 1 * time.Second,
 		MaxRetryCount:    50,
-		Server:           "https://" + host.Data.Host,
+		Server:           fmt.Sprintf("https://%s", host.Data.Host),
 		Auth:             host.Data.Credentials,
 		Remotes:          remotes,
 		KeepAlive:        10 * time.Second,
