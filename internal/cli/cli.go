@@ -30,7 +30,7 @@ func NewCliOrDie() CliInterface {
 	}
 
 	rootCmd.PersistentFlags().StringP(
-		"master", "", config.GetDefaultHost(), "Set KintoHub Master Host")
+		"master", "", config.GetMasterHost(), "Set KintoHub Master Host")
 
 	return &Cli{
 		rootCmd: rootCmd,
@@ -40,9 +40,9 @@ func NewCliOrDie() CliInterface {
 func (c *Cli) GetHostFlag() string {
 	host, _ := c.rootCmd.Flags().GetString("master")
 	if host != "" {
-		config.SetDefaultHost(host)
+		config.SetMasterHost(host)
 	}
-	return config.GetDefaultHost()
+	return config.GetMasterHost()
 }
 
 func initConfig() {

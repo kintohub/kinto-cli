@@ -13,6 +13,7 @@ const (
 	emailKey               = "emailKey"
 	publicClustersKey      = "publicClusters"
 	clusterEnvironmentsKey = "clusterEnvironments"
+	masterHostKey          = "masterHost"
 	LocalPort              = 5360
 	RedisPort              = 6379
 	PostgresPort           = 5432
@@ -21,15 +22,21 @@ const (
 	MysqlPort              = 3306
 )
 
-var MasterHost = "master.us1.kintohub.com:443"
+var DefaultMasterHost = "master.us1.kintohub.com:443"
 var Version = "v0.0.1" //Needs to be a non-const for passing version at build time
 
-func GetDefaultHost() string {
-	return MasterHost
+func GetMasterHost() string {
+	masterHost := viper.GetString(masterHostKey)
+
+	if masterHost == "" {
+		return DefaultMasterHost
+	}
+
+	return masterHost
 }
 
-func SetDefaultHost(masterHost string) {
-	MasterHost = masterHost
+func SetMasterHost(masterHost string) {
+	viper.Set(masterHostKey, masterHost)
 }
 
 func AddConfigPath(path string) {
