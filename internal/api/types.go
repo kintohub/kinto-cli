@@ -25,6 +25,11 @@ type RemoteConfig struct {
 	ToPort   int
 }
 
+type EnvDetails struct {
+	EnvName string
+	EnvId string
+}
+
 func (a *accessTokenManager) GetRequestMetadata(ctx context.Context, args ...string) (map[string]string, error) {
 	// TODO: store + check if expired logic
 	bearer := "Bearer " + config.GetAuthToken()

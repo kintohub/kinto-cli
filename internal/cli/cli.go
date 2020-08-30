@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"errors"
 	"fmt"
 	"github.com/kintohub/kinto-cli/internal/config"
 	"github.com/kintohub/kinto-cli/internal/controller"
@@ -73,14 +72,18 @@ func (c *Cli) Execute(controller controller.ControllerInterface) {
 	}
 }
 func createInitCommand(controller controller.ControllerInterface) *cobra.Command {
-	return &cobra.Command{
+	initCmd := &cobra.Command{
 		Use:   "init",
 		Short: "Login to an existing KintoHub account",
 		Long:  `Helps you to log in an already existing KintoHub account`,
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Init(args[0])
 		},
 	}
+	initCmd.SetUsageTemplate("\nUsage:\nSet new master host:\n\t" +
+		"kinto init [host]\n\nReset master host:\n\tkinto init default\n")
+	return initCmd
 }
 
 func createLoginCommand(controller controller.ControllerInterface) *cobra.Command {
@@ -121,15 +124,9 @@ func createServicesCommand(controller controller.ControllerInterface) *cobra.Com
 		Use:   "svs",
 		Short: "List services",
 		Long:  `Get a list of all services within an environment`,
-		Args: func(cmd *cobra.Command, args []string) error {
-			if len(args) != 1 {
-				return errors.New("requires envId argument")
-			}
-
-			return nil
-		},
+		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			controller.Services(args[0])
+			controller.Services(args...)
 		},
 	}
 }

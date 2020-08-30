@@ -58,6 +58,7 @@ func (a *Api) StartTeleport(blocksToForward []RemoteConfig, envId string, cluste
 
 	chiselClient.Logger.Info = false
 
+	fmt.Println("")
 	utils.InfoMessage("Starting Tunnel")
 
 	// Run chisel client in background
@@ -81,7 +82,7 @@ func (a *Api) StartTeleport(blocksToForward []RemoteConfig, envId string, cluste
 	}
 
 	for _, remote := range blocksToForward {
-		utils.InfoMessage(fmt.Sprintf("> Forwarding: %s:%d => %s:%d",
+		utils.InfoMessage(fmt.Sprintf("Forwarding > %s:%d => %s:%d",
 			remote.FromHost, remote.FromPort, remote.ToHost, remote.ToPort))
 	}
 

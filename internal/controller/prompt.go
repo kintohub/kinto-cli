@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/kintohub/kinto-cli/internal/api"
 
 	"github.com/kintohub/kinto-cli/internal/utils"
 )
@@ -42,8 +43,8 @@ func PasswordPrompt() string {
 	return password
 }
 
-func TeleportPrompt(envName []string, envDetails map[string]string) string {
-	selectedEnv := ""
+func SelectionPrompt(envName []string, envDetails []api.EnvDetails) string {
+	var selectedEnv int
 	prompt := &survey.Select{
 		Message: "Select environment:",
 		Options: envName,
@@ -54,5 +55,6 @@ func TeleportPrompt(envName []string, envDetails map[string]string) string {
 		utils.TerminateWithCustomError("Aborted!")
 	}
 
-	return envDetails[selectedEnv]
+	return envDetails[selectedEnv].EnvId
 }
+
