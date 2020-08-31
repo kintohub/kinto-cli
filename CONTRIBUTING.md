@@ -24,7 +24,7 @@ Kinto CLI uses some third-party packages to enable extra features. A list of all
 - [spf13/cobra](https://github.com/spf13/cobra)
 - [spf13/viper](https://github.com/spf13/viper)
 - [jpillora/chisel](https://github.com/jpillora/chisel)
-- [AlecAivazis/Survey](https://github.com/AlecAivazis/survey/v2)
+- [AlecAivazis/Survey](https://github.com/AlecAivazis/survey)
 - [BrianDowns/Spinner](https://github.com/briandowns/spinner)
 - [olekukonko/tablewriter](https://github.com/olekukonko/tablewriter)
 - [Terry-Mao/goconf](https://github.com/Terry-Mao/goconf)
