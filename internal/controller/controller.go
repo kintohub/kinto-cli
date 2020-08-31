@@ -9,7 +9,7 @@ type ControllerInterface interface {
 	Login()
 	Environment()
 	Version()
-	Services(envId string)
+	Services(envId ...string)
 	Teleport()
 	Status()
 }

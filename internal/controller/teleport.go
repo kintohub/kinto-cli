@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/kintohub/kinto-cli/internal/api"
 	"github.com/kintohub/kinto-cli/internal/config"
 	"github.com/kintohub/kinto-cli/internal/utils"
@@ -19,7 +20,8 @@ func (c *Controller) Teleport() {
 
 	var envName []string
 	var clusterId string
-	envDetails := make(map[string]string)
+	var envDetails []api.EnvDetails
+	count := 1
 	for _, env := range envs {
 
 		blocks, err := c.api.GetBlocks(env.Id)
@@ -35,9 +37,12 @@ func (c *Controller) Teleport() {
 
 			if latestRelease != nil {
 				if utils.GetGitDetails(latestRelease.BuildConfig.Repository.Url) {
-					envName = append(envName, env.Name)
-					envDetails[env.Name] = env.Id
+
+					envName = append(envName, fmt.Sprintf("%d. %s", count, env.Name))
+					envDetail := api.EnvDetails{EnvName: env.Name, EnvId: env.Id}
+					envDetails = append(envDetails, envDetail)
 					clusterId = env.ClusterId
+					count += 1
 				}
 			}
 		}
@@ -47,7 +52,7 @@ func (c *Controller) Teleport() {
 	due to the limitations of the external package used. */
 	if len(envDetails) != 0 {
 		utils.StopSpinner()
-		selectedEnvId := TeleportPrompt(envName, envDetails)
+		selectedEnvId := SelectionPrompt(envName, envDetails)
 		c.configureTeleport(selectedEnvId, clusterId)
 
 	} else {
@@ -59,7 +64,7 @@ func (c *Controller) Teleport() {
 func (c *Controller) configureTeleport(envId string, clusterId string) {
 	utils.StartSpinner()
 	var blocksToForward []api.RemoteConfig
-	inc := 0
+	count := 0
 	utils.GetGitDetails()
 	blocks, err := c.api.GetBlocks(envId)
 	if err != nil {
@@ -72,11 +77,11 @@ func (c *Controller) configureTeleport(envId string, clusterId string) {
 		if latestRelease != nil {
 
 			if !utils.GetGitDetails(latestRelease.BuildConfig.Repository.Url) {
-				port := config.LocalPort + inc
+				port := config.LocalPort + count
 				remote := api.RemoteConfig{FromHost: "localhost", FromPort: utils.CheckPort(port),
 					ToHost: block.Name, ToPort: utils.GetBlockPort(block)}
 				blocksToForward = append(blocksToForward, remote)
-				inc += 1
+				count += 1
 			}
 		}
 	}
