@@ -53,6 +53,7 @@ func initConfig() {
 	config.SetConfigType("yaml")
 	config.AutomaticEnv()
 	config.CreateConfig(home, configName)
+
 }
 
 func (c *Cli) Execute(controller controller.ControllerInterface) {
@@ -111,6 +112,7 @@ func createVersionCommand(controller controller.ControllerInterface) *cobra.Comm
 func createEnvironmentCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "env",
+		Aliases: []string{"envs","environment","environments"},
 		Short: "List all the Environment IDs and their regions",
 		Long:  `Get a list of all the Environment ID names and their regions`,
 		Run: func(cmd *cobra.Command, args []string) {
@@ -122,6 +124,7 @@ func createEnvironmentCommand(controller controller.ControllerInterface) *cobra.
 func createServicesCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
 		Use:   "svs",
+		Aliases: []string{"service","services"},
 		Short: "List services",
 		Long:  `Get a list of all services within an environment`,
 		Args:  cobra.MaximumNArgs(1),
