@@ -27,7 +27,7 @@ type RemoteConfig struct {
 
 type EnvDetails struct {
 	EnvName string
-	EnvId string
+	EnvId   string
 }
 
 func (a *accessTokenManager) GetRequestMetadata(ctx context.Context, args ...string) (map[string]string, error) {

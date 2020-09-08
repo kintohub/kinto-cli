@@ -6,11 +6,12 @@ import (
 	"os"
 )
 
+//Get list of all available environments in an account
 func (c *Controller) Environment() {
 
 	utils.CheckLogin()
-
 	utils.StartSpinner()
+
 	envs, err := c.api.GetClusterEnvironments()
 	clusters, err := c.api.GetClusters()
 

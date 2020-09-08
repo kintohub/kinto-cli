@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+//Set MasterHost for CLI or reset it to default production host.
 func (c *Controller) Init(masterHost string) {
 
 	if masterHost == "Default" || masterHost == "default" {
@@ -16,6 +17,8 @@ func (c *Controller) Init(masterHost string) {
 		config.SetMasterHost(masterHost)
 		config.Save()
 	}
+
+	//	TODO: To be handled in the future once .kinto files are ready
 	/*	utils.CheckLogin()
 		// TODO : Create a .kinto file and run init code
 		_, err := os.Stat(".kinto")
@@ -28,9 +31,7 @@ func (c *Controller) Init(masterHost string) {
 		} else {
 			utils.WarningMessage("Repo is already initialized")
 		}
-
 	*/
-
 }
 
 func (c *Controller) Login() {

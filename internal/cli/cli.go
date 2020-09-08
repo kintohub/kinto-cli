@@ -111,10 +111,10 @@ func createVersionCommand(controller controller.ControllerInterface) *cobra.Comm
 
 func createEnvironmentCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
-		Use:   "env",
-		Aliases: []string{"envs","environment","environments"},
-		Short: "List all the Environment IDs and their regions",
-		Long:  `Get a list of all the Environment ID names and their regions`,
+		Use:     "env",
+		Aliases: []string{"envs", "environment", "environments"},
+		Short:   "List all the Environment IDs and their regions",
+		Long:    `Get a list of all the Environment ID names and their regions`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Environment()
 		},
@@ -123,11 +123,11 @@ func createEnvironmentCommand(controller controller.ControllerInterface) *cobra.
 
 func createServicesCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
-		Use:   "svs",
-		Aliases: []string{"service","services"},
-		Short: "List services",
-		Long:  `Get a list of all services within an environment`,
-		Args:  cobra.MaximumNArgs(1),
+		Use:     "svs",
+		Aliases: []string{"service", "services"},
+		Short:   "List services",
+		Long:    `Get a list of all services within an environment`,
+		Args:    cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Services(args...)
 		},
@@ -135,13 +135,18 @@ func createServicesCommand(controller controller.ControllerInterface) *cobra.Com
 }
 
 func createTeleportCommand(controller controller.ControllerInterface) *cobra.Command {
-	return &cobra.Command{
+	teleportCmd := &cobra.Command{
 		Use:   "teleport",
 		Short: "Port-forward your remote services to your local machine",
 		Run: func(cmd *cobra.Command, args []string) {
-			controller.Teleport()
+			teleportAllFlag, _ := cmd.Flags().GetBool("all")
+			controller.Teleport(teleportAllFlag)
 		},
 	}
+	teleportCmd.Flags().Bool("all", false,
+		"Allow accessing all envs without .git")
+
+	return teleportCmd
 }
 
 func createStatusCommand(controller controller.ControllerInterface) *cobra.Command {

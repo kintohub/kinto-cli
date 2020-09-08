@@ -21,13 +21,16 @@ func createTable() *tablewriter.Table {
 	return table
 }
 
+// Services function returns all available services inside all available environments.
+// Is a variadic function. can have 0 or 1 args.
+// providing 0 args will show a selection screen prompting the user to select an environment.
+// providing 1 arg (that needs to be an ENV ID) will show services inside that environment.
 func (c *Controller) Services(envId ...string) {
 
 	utils.StartSpinner()
 	utils.CheckLogin()
 	table := createTable()
 
-	var envName []string
 	var envDetails []api.EnvDetails
 
 	if len(envId) != 0 {
@@ -52,22 +55,21 @@ func (c *Controller) Services(envId ...string) {
 
 	} else {
 
-		count := 1
+		serialNumber := 1
 		envs, err := c.api.GetClusterEnvironments()
 		if err != nil {
 			utils.TerminateWithError(err)
 		}
 
 		for _, env := range envs {
-			envName = append(envName, fmt.Sprintf("%d. %s", count, env.Name))
-			envDetail := api.EnvDetails{EnvName: env.Name, EnvId: env.Id}
+			envDetail := api.EnvDetails{EnvName: fmt.Sprintf("%d. %s", serialNumber, env.Name), EnvId: env.Id}
 			envDetails = append(envDetails, envDetail)
-			count += 1
+			serialNumber++
 		}
 
 		if len(envDetails) != 0 {
 			utils.StopSpinner()
-			selectedEnvId := SelectionPrompt(envName, envDetails)
+			selectedEnvId := SelectionPrompt(envDetails)
 			c.showSelectedEnvServices(selectedEnvId)
 
 		} else {
@@ -76,6 +78,7 @@ func (c *Controller) Services(envId ...string) {
 	}
 }
 
+//Generates and fills the table with the data from above function.
 func (c *Controller) showSelectedEnvServices(envId string) {
 
 	utils.StartSpinner()

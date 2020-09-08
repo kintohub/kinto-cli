@@ -7,6 +7,8 @@ import (
 	"github.com/kintohub/kinto-cli/internal/utils"
 )
 
+// Contains different types of prompts for CLI UX.
+
 func EmailPrompt() string {
 	email := ""
 	prompt := &survey.Input{
@@ -43,11 +45,18 @@ func PasswordPrompt() string {
 	return password
 }
 
-func SelectionPrompt(envName []string, envDetails []api.EnvDetails) string {
+// Selection prompt, to be used in screens requiring selection of single entry from multiple options.
+func SelectionPrompt(envDetails []api.EnvDetails) string {
+	var envNames []string
 	var selectedEnv int
+
+	for _, i := range envDetails {
+		envNames = append(envNames, i.EnvName)
+	}
+
 	prompt := &survey.Select{
 		Message: "Select environment:",
-		Options: envName,
+		Options: envNames,
 	}
 	err := survey.AskOne(prompt, &selectedEnv)
 
@@ -57,4 +66,3 @@ func SelectionPrompt(envName []string, envDetails []api.EnvDetails) string {
 
 	return envDetails[selectedEnv].EnvId
 }
-

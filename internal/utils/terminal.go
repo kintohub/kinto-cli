@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+//contains loading spinners and utility messages
+
 var s *spinner.Spinner
 
 func init() {
@@ -31,16 +33,15 @@ func NoteMessage(message string) {
 
 func InfoMessage(message string) {
 	StopSpinner()
-	color.Gray.Println("INFO:    ",message)
+	color.Gray.Println("INFO:    ", message)
 }
 
 func SuccessMessage(message string) {
 	StopSpinner()
-	color.Green.Println("SUCCESS: ",message)
+	color.Green.Println("SUCCESS: ", message)
 }
 
 func WarningMessage(message string) {
 	StopSpinner()
-	color.Yellow.Println("WARNING: ",message)
+	color.Yellow.Println("WARNING: ", message)
 }
-

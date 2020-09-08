@@ -15,6 +15,7 @@ import (
 	"syscall"
 )
 
+//Gets the latest successful release from any service
 func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Release {
 	if releases == nil || len(releases) == 0 {
 		return nil
@@ -56,7 +57,7 @@ func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Relea
 }
 
 //CheckPort takes a port number and checks if its available.
-//If available, will return the port as it is. If not, terminate.
+//If available, will return the port as it is. If not, it will terminate the CLI with error.
 func CheckPort(port int) int {
 
 	address := fmt.Sprintf(":%d", port)
@@ -70,39 +71,42 @@ func CheckPort(port int) int {
 	return port
 }
 
-// kinda custom function overloading.
-// Takes 0 or 1 arguments. passing 0 args will make the fn just check if the local .git/config file exists or not.
-// Passing 1 arg (repo name) will compare the passed arg with local git repo url from .git/config
-func GetGitDetails(url ...string) bool {
+// Check if Local Git Repo exists
+func CheckLocalGitOrDie() {
 
-	if url == nil {
-		conf := goconf.New()
-		err := conf.Parse("./.git/config")
-		if err != nil {
-			TerminateWithCustomError("Not a Git Repo. Please initialize the repo with Git first")
+	conf := goconf.New()
+	err := conf.Parse("./.git/config")
+	if err != nil {
+		TerminateWithCustomError("Not a Git Repo. Please initialize the repo with Git first")
+	}
 
-		}
-	} else {
-		conf := goconf.New()
-		_ = conf.Parse("./.git/config")
-		remote := conf.Get("remote \"origin\"")
-		if remote == nil {
-			// In case if git ever changes their config structure.
-			TerminateWithCustomError("Cannot parse Git config")
-		}
-		localGitUrl, err := remote.String("url")
-		if err != nil {
-			TerminateWithError(err)
-		}
-		localGitUrl = strings.Trim(localGitUrl, "= ")
+}
 
-		if strings.Replace(url[0], ".git", "", -1) == strings.Replace(localGitUrl, ".git", "", -1) {
-			return true
-		}
+//Compare passed URL with local git repo url
+func CompareGitUrl(remoteGitUrl string) bool {
+	conf := goconf.New()
+	_ = conf.Parse("./.git/config")
+	remote := conf.Get("remote \"origin\"")
+	if remote == nil {
+		// In case if git ever changes their config structure.
+		TerminateWithCustomError("Cannot parse Git config")
+	}
+	localGitUrl, err := remote.String("url")
+	if err != nil {
+		TerminateWithError(err)
+	}
+	localGitUrl = strings.Trim(localGitUrl, "= ")
+
+	if strings.Replace(remoteGitUrl, ".git", "", -1) == strings.Replace(localGitUrl, ".git", "", -1) {
+		return true
 	}
 	return false
 }
 
+//Set default ports for services that are to be passed to chisel.
+//Special ports are specified for catalogs since the ports for them are not in buildconfig.
+//if the service has either of the given names occurring in the service name, it will return the specified port
+//otherwise will fetch the port from buildconfig and return it.
 func GetBlockPort(block *types.Block) int {
 
 	if strings.Contains(block.Name, "redis") {
@@ -125,6 +129,7 @@ func GetBlockPort(block *types.Block) int {
 	}
 }
 
+//checks if user is logged in or not.
 func CheckLogin() {
 	email := config.GetEmail()
 	token := config.GetAuthToken()

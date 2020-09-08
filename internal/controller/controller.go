@@ -10,7 +10,7 @@ type ControllerInterface interface {
 	Environment()
 	Version()
 	Services(envId ...string)
-	Teleport()
+	Teleport(teleportAllFlag bool)
 	Status()
 }
 

@@ -6,11 +6,12 @@ import (
 	"os"
 )
 
+//Get the list of all environments on which the current local repo is deployed on.
 func (c *Controller) Status() {
 	utils.CheckLogin()
 	utils.StartSpinner()
+	utils.CheckLocalGitOrDie()
 
-	utils.GetGitDetails()
 	var count = 0
 	envs, err := c.api.GetClusterEnvironments()
 
@@ -36,9 +37,8 @@ func (c *Controller) Status() {
 			latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)
 
 			if latestRelease != nil {
-				if utils.GetGitDetails(latestRelease.BuildConfig.Repository.Url) {
-					count = count + 1 /* To avoid rendering the table multiple times
-					if the repo is deployed more than once on KintoHub. */
+				if utils.CompareGitUrl(latestRelease.BuildConfig.Repository.Url) {
+					count++ //to avoid rendering the table multiple times
 					table.Append([]string{
 						env.Name,
 						block.Name,
