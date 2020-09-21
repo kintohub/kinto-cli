@@ -63,8 +63,11 @@ func (c *Cli) Execute(controller controller.ControllerInterface) {
 		createLoginCommand(controller),
 		createEnvironmentCommand(controller),
 		createServicesCommand(controller),
+		createAccessCommand(controller),
 		createTeleportCommand(controller),
 		createStatusCommand(controller),
+		createEnvironmentAccessCommand(controller),
+		createServiceAccessCommand(controller),
 	)
 
 	if err := c.rootCmd.Execute(); err != nil {
@@ -110,7 +113,7 @@ func createVersionCommand(controller controller.ControllerInterface) *cobra.Comm
 }
 
 func createEnvironmentCommand(controller controller.ControllerInterface) *cobra.Command {
-	return &cobra.Command{
+	envCmd:= &cobra.Command{
 		Use:     "env",
 		Aliases: []string{"envs", "environment", "environments"},
 		Short:   "List all the Environment IDs and their regions",
@@ -119,10 +122,26 @@ func createEnvironmentCommand(controller controller.ControllerInterface) *cobra.
 			controller.Environment()
 		},
 	}
+
+	envCmd.AddCommand(createEnvironmentAccessCommand(controller))
+	return envCmd
+}
+
+func createEnvironmentAccessCommand(controller controller.ControllerInterface) *cobra.Command {
+	return &cobra.Command{
+		Use:     "access",
+		Aliases: []string{"envs", "environment", "environments"},
+		Short:   "List all the Environment IDs and their regions",
+		Long:    `Get a list of all the Environment ID names and their regions`,
+		Args:    cobra.MaximumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			controller.EnvironmentAccess(args...)
+		},
+	}
 }
 
 func createServicesCommand(controller controller.ControllerInterface) *cobra.Command {
-	return &cobra.Command{
+	svsCmd:= &cobra.Command{
 		Use:     "svs",
 		Aliases: []string{"service", "services"},
 		Short:   "List services",
@@ -132,21 +151,44 @@ func createServicesCommand(controller controller.ControllerInterface) *cobra.Com
 			controller.Services(args...)
 		},
 	}
+
+	svsCmd.AddCommand(createServiceAccessCommand(controller))
+	return svsCmd
+}
+
+func createServiceAccessCommand(controller controller.ControllerInterface) *cobra.Command {
+	return &cobra.Command{
+		Use:     "access",
+		Aliases: []string{"envs", "environment", "environments"},
+		Short:   "List all the Environment IDs and their regions",
+		Long:    `Get a list of all the Environment ID names and their regions`,
+		Args:    cobra.ExactArgs(2),
+		Run: func(cmd *cobra.Command, args []string) {
+			controller.ServiceAccess(args[0],args[1])
+		},
+	}
+}
+
+func createAccessCommand(controller controller.ControllerInterface) *cobra.Command {
+	accessCmd := &cobra.Command{
+		Use:   "access",
+		Short: "Port-forward your remote services to your local machine",
+		Run: func(cmd *cobra.Command, args []string) {
+			controller.Access()
+		},
+	}
+	return accessCmd
 }
 
 func createTeleportCommand(controller controller.ControllerInterface) *cobra.Command {
-	teleportCmd := &cobra.Command{
+	accessCmd := &cobra.Command{
 		Use:   "teleport",
-		Short: "Port-forward your remote services to your local machine",
+		Short: "Teleport into your remote services",
 		Run: func(cmd *cobra.Command, args []string) {
-			teleportAllFlag, _ := cmd.Flags().GetBool("all")
-			controller.Teleport(teleportAllFlag)
+			controller.Teleport()
 		},
 	}
-	teleportCmd.Flags().Bool("all", false,
-		"Allow accessing all envs without .git")
-
-	return teleportCmd
+	return accessCmd
 }
 
 func createStatusCommand(controller controller.ControllerInterface) *cobra.Command {

@@ -46,7 +46,7 @@ func PasswordPrompt() string {
 }
 
 // Selection prompt, to be used in screens requiring selection of single entry from multiple options.
-func SelectionPrompt(envDetails []api.EnvDetails) string {
+func SelectionPrompt(envDetails []api.EnvDetails) (string, string) {
 	var envNames []string
 	var selectedEnv int
 
@@ -64,5 +64,5 @@ func SelectionPrompt(envDetails []api.EnvDetails) string {
 		utils.TerminateWithCustomError("Aborted!")
 	}
 
-	return envDetails[selectedEnv].EnvId
+	return envDetails[selectedEnv].EnvId, envDetails[selectedEnv].ClusterId
 }

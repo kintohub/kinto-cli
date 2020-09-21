@@ -28,16 +28,19 @@ func (c *Controller) Environment() {
 	table.SetRowLine(true)
 	table.SetHeader([]string{
 		"Env Id",
+		"Cluster Id",
 		"Name",
 		"Region",
 	})
 	table.SetHeaderColor(tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
 		tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
 		tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor})
 
 	for _, c := range envs {
 		table.Append([]string{
 			c.Id,
+			c.ClusterId,
 			c.Name,
 			clusterDetail[c.ClusterId],
 		})

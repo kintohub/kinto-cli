@@ -8,9 +8,12 @@ type ControllerInterface interface {
 	Init(masterHost string)
 	Login()
 	Environment()
+	EnvironmentAccess(envId ...string)
 	Version()
 	Services(envId ...string)
-	Teleport(teleportAllFlag bool)
+	ServiceAccess(envId string,blockId string)
+	Access()
+	Teleport()
 	Status()
 }
 

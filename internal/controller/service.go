@@ -21,10 +21,6 @@ func createTable() *tablewriter.Table {
 	return table
 }
 
-// Services function returns all available services inside all available environments.
-// Is a variadic function. can have 0 or 1 args.
-// providing 0 args will show a selection screen prompting the user to select an environment.
-// providing 1 arg (that needs to be an ENV ID) will show services inside that environment.
 func (c *Controller) Services(envId ...string) {
 
 	utils.StartSpinner()
@@ -69,7 +65,7 @@ func (c *Controller) Services(envId ...string) {
 
 		if len(envDetails) != 0 {
 			utils.StopSpinner()
-			selectedEnvId := SelectionPrompt(envDetails)
+			selectedEnvId, _ := SelectionPrompt(envDetails)
 			c.showSelectedEnvServices(selectedEnvId)
 
 		} else {
