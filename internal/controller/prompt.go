@@ -7,7 +7,7 @@ import (
 	"github.com/kintohub/kinto-cli/internal/utils"
 )
 
-// Contains different types of prompts for CLI UX.
+// Contains different types of prompts for the UX.
 
 func EmailPrompt() string {
 	email := ""

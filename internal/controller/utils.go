@@ -24,33 +24,10 @@ func (c *Controller) GetEnvFromId(envId string) *types.ClusterEnvironment {
 	return nil
 }
 
-func (c *Controller) GetBlockFromId(blockId string) *types.Block {
-
-	envs, err := c.api.GetClusterEnvironments()
-	if err != nil {
-		utils.TerminateWithError(err)
-	}
-
-	for _, env := range envs {
-		blocks, err := c.api.GetBlocks(env.Id)
-		if err != nil {
-			utils.TerminateWithError(err)
-		}
-
-		for _, block := range blocks {
-
-			if block.Id == blockId {
-				return block
-			}
-		}
-	}
-	return nil
-}
-
 //Get All teleport-able/Accessible Environment names
-func (c *Controller) GetAvailableEnvNames(enableLocalGit bool) []api.EnvDetails {
+func (c *Controller) GetAvailableEnvNames(enableLocalGitCheck bool) []api.EnvDetails {
 
-	if enableLocalGit {
+	if enableLocalGitCheck {
 		utils.CheckLocalGitOrDie()
 	}
 
@@ -71,7 +48,7 @@ func (c *Controller) GetAvailableEnvNames(enableLocalGit bool) []api.EnvDetails 
 		for _, block := range blocks {
 			latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)
 
-			if latestRelease != nil && enableLocalGit &&
+			if latestRelease != nil && enableLocalGitCheck &&
 				utils.CompareGitUrl(latestRelease.BuildConfig.Repository.Url) {
 
 				envDetails = append(envDetails, api.EnvDetails{EnvName: fmt.Sprintf(
@@ -79,7 +56,7 @@ func (c *Controller) GetAvailableEnvNames(enableLocalGit bool) []api.EnvDetails 
 				serialNumber++
 				break
 
-			} else if latestRelease != nil && !enableLocalGit {
+			} else if latestRelease != nil && !enableLocalGitCheck {
 
 				envDetails = append(envDetails, api.EnvDetails{EnvName: fmt.Sprintf(
 					"%d. %s", serialNumber, env.Name), EnvId: env.Id, ClusterId: env.ClusterId})
@@ -117,7 +94,6 @@ func (c *Controller) GetBlocksToForward(envId string) []api.RemoteConfig {
 				ToHost: block.Name, ToPort: utils.GetBlockPort(block)}
 			blocksToForward = append(blocksToForward, remote)
 			count += 1
-			fmt.Println(block.Name)
 		}
 	}
 
@@ -142,8 +118,8 @@ func (c *Controller) GetBlocksToTeleport(envId string) ([]api.RemoteConfig, stri
 
 			if utils.CompareGitUrl(latestRelease.BuildConfig.Repository.Url) {
 				remote := api.RemoteConfig{FromHost: "R:localhost",
-					FromPort: 3000,
-					ToHost:   "localhost", ToPort: 3000}
+					FromPort: config.LocalPort + count,
+					ToHost:   block.Name, ToPort: 3000}
 				blocksToForward = append(blocksToForward, remote)
 				count++
 				blockName = block.Name
