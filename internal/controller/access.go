@@ -84,9 +84,13 @@ func (c *Controller) ServiceAccess(envId string, blockId string) {
 
 			latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)
 
-			if latestRelease != nil {
-				remote := api.RemoteConfig{FromHost: "localhost", FromPort: utils.CheckPort(config.LocalPort),
-					ToHost: block.Name, ToPort: utils.GetBlockPort(block)}
+			if utils.CanPortForwardToRelease(latestRelease) {
+				remote := api.RemoteConfig{
+					FromHost: "localhost",
+					FromPort: utils.CheckIfPortAvailable(config.LocalPort),
+					ToHost:   block.Name,
+					ToPort:   utils.GetBlockPort(block.Name, latestRelease),
+				}
 				blocksToForward = append(blocksToForward, remote)
 			}
 			break
@@ -102,4 +106,3 @@ func (c *Controller) ServiceAccess(envId string, blockId string) {
 	}
 
 }
-

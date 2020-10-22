@@ -66,8 +66,6 @@ func (c *Cli) Execute(controller controller.ControllerInterface) {
 		createAccessCommand(controller),
 		createTeleportCommand(controller),
 		createStatusCommand(controller),
-		createEnvironmentAccessCommand(controller),
-		createServiceAccessCommand(controller),
 	)
 
 	if err := c.rootCmd.Execute(); err != nil {
@@ -78,8 +76,8 @@ func (c *Cli) Execute(controller controller.ControllerInterface) {
 func createInitCommand(controller controller.ControllerInterface) *cobra.Command {
 	initCmd := &cobra.Command{
 		Use:   "init",
-		Short: "Login to an existing KintoHub account",
-		Long:  `Helps you to log in an already existing KintoHub account`,
+		Short: "Init the cli",
+		Long:  `Create a 'kinto.yaml' file in your home directory`,
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Init(args[0])
@@ -113,7 +111,7 @@ func createVersionCommand(controller controller.ControllerInterface) *cobra.Comm
 }
 
 func createEnvironmentCommand(controller controller.ControllerInterface) *cobra.Command {
-	envCmd:= &cobra.Command{
+	envCmd := &cobra.Command{
 		Use:     "env",
 		Aliases: []string{"envs", "environment", "environments"},
 		Short:   "List all the Environment IDs and their regions",
@@ -141,7 +139,7 @@ func createEnvironmentAccessCommand(controller controller.ControllerInterface) *
 }
 
 func createServicesCommand(controller controller.ControllerInterface) *cobra.Command {
-	svsCmd:= &cobra.Command{
+	svsCmd := &cobra.Command{
 		Use:     "svs",
 		Aliases: []string{"service", "services"},
 		Short:   "List services",
@@ -164,7 +162,7 @@ func createServiceAccessCommand(controller controller.ControllerInterface) *cobr
 		Long:    `Get a list of all the Environment ID names and their regions`,
 		Args:    cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			controller.ServiceAccess(args[0],args[1])
+			controller.ServiceAccess(args[0], args[1])
 		},
 	}
 }
@@ -195,9 +193,9 @@ func createStatusCommand(controller controller.ControllerInterface) *cobra.Comma
 	return &cobra.Command{
 		Use: "status",
 		Short: `List environments & services where the current repo is deployed. 
-				This commands needs to be called from within a Git repo.`,
+This commands needs to be called from within a Git repo.`,
 		Long: `Get a list of all environments & services where the current Git repo is deployed to. 
-				This command should be run from within a Git repo.`,
+This command should be run from within a Git repo.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Status()
 		},

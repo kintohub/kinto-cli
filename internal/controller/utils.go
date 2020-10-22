@@ -88,10 +88,14 @@ func (c *Controller) GetBlocksToForward(envId string) []api.RemoteConfig {
 	for _, block := range blocks {
 		latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)
 
-		if latestRelease != nil {
+		if utils.CanPortForwardToRelease(latestRelease) {
 			port := config.LocalPort + count
-			remote := api.RemoteConfig{FromHost: "localhost", FromPort: utils.CheckPort(port),
-				ToHost: block.Name, ToPort: utils.GetBlockPort(block)}
+			remote := api.RemoteConfig{
+				FromHost: "localhost",
+				FromPort: utils.CheckIfPortAvailable(port),
+				ToHost:   block.Name,
+				ToPort:   utils.GetBlockPort(block.Name, latestRelease),
+			}
 			blocksToForward = append(blocksToForward, remote)
 			count += 1
 		}
@@ -103,7 +107,7 @@ func (c *Controller) GetBlocksToForward(envId string) []api.RemoteConfig {
 func (c *Controller) GetBlocksToTeleport(envId string) ([]api.RemoteConfig, string) {
 	utils.CheckLocalGitOrDie()
 	var blocksToForward []api.RemoteConfig
-	var blockName string
+	var blockNameToTeleport string
 	count := 0
 
 	blocks, err := c.api.GetBlocks(envId)
@@ -114,25 +118,30 @@ func (c *Controller) GetBlocksToTeleport(envId string) ([]api.RemoteConfig, stri
 	for _, block := range blocks {
 		latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)
 
-		if latestRelease != nil {
+		if utils.CanPortForwardToRelease(latestRelease) {
 
 			if utils.CompareGitUrl(latestRelease.BuildConfig.Repository.Url) {
-				remote := api.RemoteConfig{FromHost: "R:localhost",
-					FromPort: config.LocalPort + count,
-					ToHost:   block.Name, ToPort: 3000}
+				remote := api.RemoteConfig{
+					FromHost: "R:0.0.0.0", // server listen to all interfaces
+					FromPort: 3000,        // https://github.com/kintohub/kinto-kube-core/blob/master/internal/store/kube/chisel.go#L35
+					ToHost:   "localhost",
+					ToPort:   8080, // TODO make it configurable, the user must run their local service on port 8080
+				}
 				blocksToForward = append(blocksToForward, remote)
 				count++
-				blockName = block.Name
+				blockNameToTeleport = block.Name
 			} else {
-				remote := api.RemoteConfig{FromHost: "localhost",
-					FromPort: utils.CheckPort(config.LocalPort + count),
-					ToHost:   block.Name, ToPort: utils.GetBlockPort(block)}
+				remote := api.RemoteConfig{
+					FromHost: "localhost",
+					FromPort: utils.CheckIfPortAvailable(config.LocalPort + count),
+					ToHost:   block.Name,
+					ToPort:   utils.GetBlockPort(block.Name, latestRelease),
+				}
 				blocksToForward = append(blocksToForward, remote)
 				count++
 			}
-
 		}
 	}
 
-	return blocksToForward, blockName
+	return blocksToForward, blockNameToTeleport
 }

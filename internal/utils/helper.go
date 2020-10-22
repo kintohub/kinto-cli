@@ -23,7 +23,12 @@ func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Relea
 
 	var latestRelease *types.Release
 	for _, release := range releases {
-		if release.Status.State == types.Status_SUCCESS {
+		// filter release by only successfully deployed and with valid deployment type (exclude SUSPEND and UNDEPLOY)
+		// NOT_SET is included as well for backward compatibility
+		if release.Status.State == types.Status_SUCCESS &&
+			(release.Type == types.Release_ROLLBACK ||
+				release.Type == types.Release_DEPLOY ||
+				release.Type == types.Release_NOT_SET) {
 			if latestRelease == nil {
 				latestRelease = release
 				continue
@@ -33,8 +38,7 @@ func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Relea
 
 			if err != nil {
 				log.Error().Err(err).Msgf(
-					"cannot parse timestamp %v to time for release %v",
-					latestRelease.CreatedAt, latestRelease)
+					"cannot parse timestamp %v to time for release %v", latestRelease.CreatedAt, latestRelease)
 				continue
 			}
 
@@ -42,8 +46,7 @@ func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Relea
 
 			if err != nil {
 				log.Error().Err(err).Msgf(
-					"cannot parse timestamp %v to time for release %v",
-					release.CreatedAt, release)
+					"cannot parse timestamp %v to time for release %v", release.CreatedAt, release)
 				continue
 			}
 
@@ -58,8 +61,7 @@ func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Relea
 
 //CheckPort takes a port number and checks if its available.
 //If available, will return the port as it is. If not, it will terminate the CLI with error.
-func CheckPort(port int) int {
-
+func CheckIfPortAvailable(port int) int {
 	address := fmt.Sprintf(":%d", port)
 	connection, err := net.Listen("tcp", address)
 	if err != nil {
@@ -107,25 +109,33 @@ func CompareGitUrl(remoteGitUrl string) bool {
 //Special ports are specified for catalogs since the ports for them are not in buildconfig.
 //if the service has either of the given names occurring in the service name, it will return the specified port
 //otherwise will fetch the port from buildconfig and return it.
-func GetBlockPort(block *types.Block) int {
+func GetBlockPort(blockName string, release *types.Release) int {
 
-	if strings.Contains(block.Name, "redis") {
+	if strings.Contains(blockName, "redis") {
 		return config.RedisPort
-	} else if strings.Contains(block.Name, "postgres") {
+	} else if strings.Contains(blockName, "postgres") {
 		return config.PostgresPort
-	} else if strings.Contains(block.Name, "mongodb") {
+	} else if strings.Contains(blockName, "mongodb") {
 		return config.MongoPort
-	} else if strings.Contains(block.Name, "minio") {
+	} else if strings.Contains(blockName, "minio") {
 		return config.MinioPort
-	} else if strings.Contains(block.Name, "mysql") {
+	} else if strings.Contains(blockName, "mysql") {
 		return config.MysqlPort
 	} else {
-		resp := GetLatestSuccessfulRelease(block.Releases).RunConfig.Port
-		port, err := strconv.Atoi(resp)
+		port, err := strconv.Atoi(release.RunConfig.Port)
 		if err != nil {
 			TerminateWithError(err)
 		}
 		return port
+	}
+}
+
+func CanPortForwardToRelease(release *types.Release) bool {
+	if release.RunConfig != nil &&
+		(release.RunConfig.Type == types.Block_BACKEND_API || release.RunConfig.Type == types.Block_CATALOG) {
+		return true
+	} else {
+		return false
 	}
 }
 

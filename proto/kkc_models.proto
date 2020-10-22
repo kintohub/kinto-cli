@@ -33,14 +33,28 @@ message Block {
     map<string, Release> releases = 5;
     repeated string customDomains = 6;
     bool isPublicURL = 7;
+    string parentBlockName = 8;
+    string parentBlockEnvId = 9;
 }
 
 message Release {
+    enum Type {
+        NOT_SET = 0;
+        DEPLOY = 1;
+        UNDEPLOY = 2;
+        SUSPEND = 3;
+        ROLLBACK = 4;
+    }
+
     string id = 1;
     google.protobuf.Timestamp createdAt = 2;
     BuildConfig buildConfig = 3;
     RunConfig runConfig = 4;
     Status status = 5;
+    google.protobuf.Timestamp startedAt = 6;
+    google.protobuf.Timestamp endedAt = 7;
+    Type type = 8;
+    repeated string tags = 9;
 }
 
 message BuildConfig {
@@ -53,6 +67,8 @@ message BuildConfig {
         JAVA = 5;
         RUBY = 6;
         PHP = 7;
+        RUST = 8;
+        ELIXIR = 9;
     }
 
     string id = 1;
@@ -62,6 +78,7 @@ message BuildConfig {
     string buildCommand = 5;
     string runCommand = 6;
     string pathToCode = 7;
+    string pathToStaticOutput = 11;
     string dockerfileFileName = 8;
     map<string, string> buildArgs = 9;
     Repository repository = 10;
@@ -85,6 +102,7 @@ message RunConfig {
     bool costOptimizationEnabled = 9;
     bool sleepModeEnabled = 10;
     Protocol protocol = 11;
+    int32 sleepModeTTLSeconds = 12;
 }
 
 message Repository {
@@ -118,6 +136,7 @@ message Status {
         RUNNING = 3;
         PENDING = 4;
         ABORTED = 5;
+        REVIEW_DEPLOY = 6;
     }
 
     State state = 2;
@@ -160,6 +179,7 @@ message BlockStatus {
         HEALTHY = 1;
         UNHEALTHY = 2;
         SUSPENDED = 3;
+        SLEEPING = 4;
     }
 
     string blockName = 1;

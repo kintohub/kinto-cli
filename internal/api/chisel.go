@@ -58,8 +58,10 @@ func StartChisel(blocksToForward []RemoteConfig, streamResponse types.KintoKubeC
 	var remotes []string
 
 	for _, remote := range blocksToForward {
-		remotes = append(remotes, fmt.Sprintf(remote.FromHost+":"+strconv.Itoa(remote.FromPort)+
-			":"+remote.ToHost+":"+strconv.Itoa(remote.ToPort)))
+		remotes = append(
+			remotes,
+			fmt.Sprintf(
+				remote.FromHost+":"+strconv.Itoa(remote.FromPort)+":"+remote.ToHost+":"+strconv.Itoa(remote.ToPort)))
 	}
 
 	chiselClient, err := chclient.NewClient(&chclient.Config{
@@ -85,6 +87,7 @@ func StartChisel(blocksToForward []RemoteConfig, streamResponse types.KintoKubeC
 	}()
 
 	chiselClient.Logger.Info = false
+	// chiselClient.Logger.Debug = true
 
 	fmt.Println("")
 	utils.InfoMessage("Starting Tunnel")
