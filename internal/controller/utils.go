@@ -88,7 +88,7 @@ func (c *Controller) GetBlocksToForward(envId string) []api.RemoteConfig {
 	for _, block := range blocks {
 		latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)
 
-		if utils.CanPortForwardToRelease(latestRelease) {
+		if latestRelease != nil && utils.CanPortForwardToRelease(latestRelease) {
 			port := config.LocalPort + count
 			remote := api.RemoteConfig{
 				FromHost: "localhost",
@@ -118,7 +118,7 @@ func (c *Controller) GetBlocksToTeleport(envId string) ([]api.RemoteConfig, stri
 	for _, block := range blocks {
 		latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)
 
-		if utils.CanPortForwardToRelease(latestRelease) {
+		if latestRelease != nil && utils.CanPortForwardToRelease(latestRelease) {
 
 			if utils.CompareGitUrl(latestRelease.BuildConfig.Repository.Url) {
 				remote := api.RemoteConfig{

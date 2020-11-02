@@ -8,6 +8,7 @@ import (
 	"github.com/kintohub/kinto-cli/internal/utils"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -87,11 +88,18 @@ func StartChisel(blocksToForward []RemoteConfig, streamResponse types.KintoKubeC
 	}()
 
 	chiselClient.Logger.Info = false
-	// chiselClient.Logger.Debug = true
 
 	fmt.Println("")
 	utils.InfoMessage("Starting Tunnel")
-
+	for _, remote := range blocksToForward {
+		if strings.Contains(remote.FromHost, "R:0.0.0.0") {
+			utils.InfoMessage(fmt.Sprintf("Teleporting > %s:%d => %s:%d",
+				remote.ToHost, remote.ToPort, remote.FromHost, remote.FromPort))
+		} else {
+			utils.InfoMessage(fmt.Sprintf("Forwarding  >  %s:%d => %s:%d",
+				remote.FromHost, remote.FromPort, remote.ToHost, remote.ToPort))
+		}
+	}
 	// Run chisel client in background
 	go func() {
 		err = chiselClient.Run()
@@ -104,13 +112,19 @@ func StartChisel(blocksToForward []RemoteConfig, streamResponse types.KintoKubeC
 		utils.TerminateWithError(err)
 	}
 
-	for _, remote := range blocksToForward {
-		utils.InfoMessage(fmt.Sprintf("Forwarding > %s:%d => %s:%d",
-			remote.FromHost, remote.FromPort, remote.ToHost, remote.ToPort))
+	fmt.Println("")
+	utils.WarningMessage("Please start your local server at PORT => 8080")
+
+	for utils.CheckTeleportStatus(8080) {
+		utils.StartSpinner()
 	}
 
+	utils.StartSpinner()
+	fmt.Println("")
 	utils.SuccessMessage("Connected!")
-	utils.NoteMessage("\nPress any key to close the tunnel")
+	fmt.Println("")
+	utils.NoteMessage("Press any key to close the tunnel")
 	fmt.Scanln()
 	utils.NoteMessage("Connection Closed")
+
 }

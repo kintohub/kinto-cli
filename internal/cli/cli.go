@@ -47,6 +47,7 @@ func initConfig() {
 	}
 
 	// Search config in home directory with name "kinto.yaml"
+	// If it does not exists create one
 	const configName = "kinto.yaml"
 	config.AddConfigPath(home)
 	config.SetConfigName(configName)

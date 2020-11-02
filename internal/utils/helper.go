@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 )
 
 //Gets the latest successful release from any service
@@ -71,6 +72,19 @@ func CheckIfPortAvailable(port int) int {
 		_ = connection.Close()
 	}
 	return port
+}
+
+func CheckTeleportStatus(port int) bool {
+	time.Sleep(1 * time.Second)
+	address := fmt.Sprintf("0.0.0.0:%d", port)
+	connection, err := net.Listen("tcp", address)
+	if err != nil {
+		return false
+	} else {
+		_ = connection.Close()
+		return true
+	}
+
 }
 
 // Check if Local Git Repo exists
@@ -132,7 +146,9 @@ func GetBlockPort(blockName string, release *types.Release) int {
 
 func CanPortForwardToRelease(release *types.Release) bool {
 	if release.RunConfig != nil &&
-		(release.RunConfig.Type == types.Block_BACKEND_API || release.RunConfig.Type == types.Block_CATALOG) {
+		(release.RunConfig.Type == types.Block_BACKEND_API ||
+			release.RunConfig.Type == types.Block_WEB_APP ||
+			release.RunConfig.Type == types.Block_CATALOG) {
 		return true
 	} else {
 		return false
