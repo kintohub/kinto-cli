@@ -120,7 +120,6 @@ func StartChisel(blocksToForward []RemoteConfig, streamResponse types.KintoKubeC
 	}
 
 	utils.StartSpinner()
-	fmt.Println("")
 	utils.SuccessMessage("Connected!")
 	fmt.Println("")
 	utils.NoteMessage("Press any key to close the tunnel")
