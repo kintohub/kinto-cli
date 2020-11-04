@@ -58,7 +58,8 @@ func (a *Api) StartTeleport(blocksToForward []RemoteConfig, envId string, cluste
 }
 
 // Master function to start the chisel client. takes a param `isTeleport` to determine the nature of call.
-func StartChisel(blocksToForward []RemoteConfig, streamResponse types.KintoKubeCoreService_StartTeleportClient, isTeleport bool) {
+func StartChisel(blocksToForward []RemoteConfig,
+	streamResponse types.KintoKubeCoreService_StartTeleportClient, isTeleport bool) {
 
 	host, err := streamResponse.Recv()
 
