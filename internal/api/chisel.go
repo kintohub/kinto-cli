@@ -127,7 +127,7 @@ func StartChisel(blocksToForward []RemoteConfig, streamResponse types.KintoKubeC
 				remote.FromPort))
 		} else {
 			utils.InfoMessage(fmt.Sprintf(
-				"Forwarding  >  %s:%d => %s:%d",
+				"Forwarding  > %s:%d => %s:%d",
 				remote.FromHost,
 				remote.FromPort,
 				remote.ToHost,
@@ -157,8 +157,8 @@ func StartChisel(blocksToForward []RemoteConfig, streamResponse types.KintoKubeC
 			"Please start your local server at PORT => %d", config.DefaultClientTeleportPort))
 
 		for utils.CheckIfPortOpen(config.DefaultClientTeleportPort, false) {
-			time.Sleep(1 * time.Second)
 			utils.StartSpinner()
+			time.Sleep(1 * time.Second)
 		}
 	}
 
