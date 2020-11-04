@@ -9,18 +9,20 @@ import (
 )
 
 const (
-	authTokenKey           = "authToken"
-	emailKey               = "emailKey"
-	publicClustersKey      = "publicClusters"
-	clusterEnvironmentsKey = "clusterEnvironments"
-	masterHostKey          = "masterHost"
-	DefaultAccessPort      = 5360
-	DefaultTeleportPort    = 8080
-	RedisPort              = 6379
-	PostgresPort           = 5432
-	MongoPort              = 27017
-	MinioPort              = 9000
-	MysqlPort              = 3306
+	CliConfigName                    = "kinto.yaml"
+	authTokenKey                 = "authToken"
+	emailKey                     = "emailKey"
+	publicClustersKey            = "publicClusters"
+	clusterEnvironmentsKey       = "clusterEnvironments"
+	masterHostKey                = "masterHost"
+	DefaultTeleportInterfacePort = "R:0.0.0.0"
+	DefaultClientAccessPort      = 5360
+	DefaultClientTeleportPort    = 8080
+	RedisPort                    = 6379
+	PostgresPort                 = 5432
+	MongoPort                    = 27017
+	MinioPort                    = 9000
+	MysqlPort                    = 3306
 	//TODO: Remove catalog ports once ports are on kkc run config.
 )
 

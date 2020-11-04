@@ -8,16 +8,13 @@ import (
 	"github.com/kintohub/kinto-cli/internal/types"
 	"github.com/rs/zerolog/log"
 	"net"
-	"os"
-	"os/signal"
 	"strconv"
 	"strings"
-	"syscall"
 )
 
 //Gets the latest successful release from any service
 func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Release {
-	if releases == nil || len(releases) == 0 {
+	if releases == nil || len(releases) == 0 { //nolint:gosimple
 		return nil
 	}
 
@@ -59,7 +56,8 @@ func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Relea
 	return latestRelease
 }
 
-//Check if supplied port is open.
+//Check if supplied port is open. takes a bool param to either kill the cli on error or return false.
+//this is so as to reuse the fn for checking teleport connection status.
 func CheckIfPortOpen(port int, terminateOnError bool) bool {
 	address := fmt.Sprintf(":%d", port)
 	connection, err := net.Listen("tcp", address)
@@ -77,9 +75,8 @@ func CheckIfPortOpen(port int, terminateOnError bool) bool {
 	return true
 }
 
-// Check if Local Git Repo exists
+//check if Local Git Repo exists
 func CheckLocalGitOrDie() {
-
 	conf := goconf.New()
 	err := conf.Parse("./.git/config")
 	if err != nil {
@@ -88,7 +85,7 @@ func CheckLocalGitOrDie() {
 
 }
 
-//Compare passed URL with local git repo url
+//compare passed URL with local git repo url
 func CompareGitUrl(remoteGitUrl string) bool {
 	conf := goconf.New()
 	_ = conf.Parse("./.git/config")
@@ -103,16 +100,13 @@ func CompareGitUrl(remoteGitUrl string) bool {
 	}
 	localGitUrl = strings.Trim(localGitUrl, "= ")
 
-	if strings.Replace(remoteGitUrl, ".git", "", -1) == strings.Replace(localGitUrl, ".git", "", -1) {
-		return true
-	}
-	return false
+	return strings.Replace(remoteGitUrl, ".git", "", -1) ==
+		strings.Replace(localGitUrl, ".git", "", -1)
+
 }
 
-//Set default ports for services that are to be passed to chisel.
-//Special ports are specified for catalogs since the ports for them are not in buildconfig.
-//if the service has either of the given names occurring in the service name, it will return the specified port
-//otherwise will fetch the port from buildconfig and return it.
+//set ports for catalog services.
+//TODO : remove these once, catalog ports are available in run config
 func GetBlockPort(blockName string, release *types.Release) int {
 
 	if strings.Contains(blockName, "redis") {
@@ -134,6 +128,7 @@ func GetBlockPort(blockName string, release *types.Release) int {
 	}
 }
 
+//check if service is port-forwardable/teleportable or not.
 func CanPortForwardToRelease(release *types.Release) bool {
 	if release.RunConfig != nil &&
 		(release.RunConfig.Type == types.Block_BACKEND_API ||
@@ -153,13 +148,4 @@ func CheckLogin() {
 	if email == "" || token == "" {
 		TerminateWithCustomError("Please log-in into your account first")
 	}
-}
-
-func CloseCli() {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
-		TerminateWithCustomError("Aborted!")
-	}()
 }

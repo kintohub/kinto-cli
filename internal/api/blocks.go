@@ -11,6 +11,7 @@ func (a *Api) GetBlocks(envId string) ([]*types.Block, error) {
 
 	if err != nil {
 		utils.TerminateWithError(err)
+		return nil, nil
 	}
 
 	blocksResp, err := a.getKubeCoreService(env.ClusterId, envId).GetBlocks(

@@ -1,26 +1,22 @@
 package controller
 
 import (
-	"github.com/kintohub/kinto-cli/internal/api"
 	"github.com/kintohub/kinto-cli/internal/utils"
 )
 
+//allows to teleport a particular service inside an env while port-forwarding the remaining services.
 func (c *Controller) Teleport() {
 
 	utils.CheckLogin()
 	utils.StartSpinner()
 
-	var envDetails []api.EnvDetails
-
-
-	envDetails = c.GetAvailableEnvNames(true)
+	envDetails := c.GetAvailableEnvNames(true)
 
 	utils.StopSpinner()
 	selectedEnvId, clusterId := SelectionPrompt(envDetails)
 	utils.StartSpinner()
-	var blocksToForward []api.RemoteConfig
-	var blockNameToTeleport string
-	blocksToForward, blockNameToTeleport = c.GetBlocksToTeleport(selectedEnvId)
+
+	blocksToForward, blockNameToTeleport := c.GetBlocksToTeleport(selectedEnvId)
 
 	if len(blocksToForward) != 0 {
 		utils.StopSpinner()
@@ -31,4 +27,3 @@ func (c *Controller) Teleport() {
 	}
 
 }
-

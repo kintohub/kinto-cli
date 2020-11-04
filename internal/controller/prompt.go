@@ -22,6 +22,7 @@ func EmailPrompt() string {
 
 	if err != nil {
 		utils.TerminateWithCustomError("Aborted!")
+		return ""
 	}
 
 	return email
@@ -40,6 +41,7 @@ func PasswordPrompt() string {
 
 	if err != nil {
 		utils.TerminateWithCustomError("Aborted!")
+		return ""
 	}
 
 	return password
@@ -62,6 +64,7 @@ func SelectionPrompt(envDetails []api.EnvDetails) (string, string) {
 
 	if err != nil {
 		utils.TerminateWithCustomError("Aborted!")
+		return "", ""
 	}
 
 	return envDetails[selectedEnv].EnvId, envDetails[selectedEnv].ClusterId

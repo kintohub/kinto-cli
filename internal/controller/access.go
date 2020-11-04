@@ -6,22 +6,23 @@ import (
 	"github.com/kintohub/kinto-cli/internal/utils"
 )
 
+//needs to be run from a local git repo.
+//it is the parent function for `kinto access` command. Allows to port-forward all services in an env
+//as long as the env has atleast one service belonging to the local git repo.
 func (c *Controller) Access() {
 
 	utils.CheckLogin()
 	utils.StartSpinner()
 
-	var envDetails []api.EnvDetails
-
-	envDetails = c.GetAvailableEnvNames(true)
+	envDetails := c.GetAvailableEnvNames(true)
 
 	utils.StopSpinner()
 	selectedEnvId, clusterId := SelectionPrompt(envDetails)
 	utils.StartSpinner()
-	var blocksToForward []api.RemoteConfig
-	blocksToForward = c.GetBlocksToForward(selectedEnvId)
 
-	if len(blocksToForward) != 0 {
+	blocksToForward := c.GetBlocksToForward(selectedEnvId)
+
+	if len(blocksToForward) > 0 {
 		utils.StopSpinner()
 		c.api.StartAccess(blocksToForward, selectedEnvId, clusterId)
 	} else {
@@ -30,6 +31,8 @@ func (c *Controller) Access() {
 
 }
 
+//sub-function of the `access` command, called when using `kinto env access`.
+//allows port-forwarding whole environments.
 func (c *Controller) EnvironmentAccess(envId ...string) {
 
 	utils.CheckLogin()
@@ -46,7 +49,7 @@ func (c *Controller) EnvironmentAccess(envId ...string) {
 		utils.StartSpinner()
 		blocksToForward = c.GetBlocksToForward(selectedEnvId)
 	} else {
-		env := c.GetEnvFromId(envId[0])
+		env := c.GetEnvWithId(envId[0])
 		blocksToForward = c.GetBlocksToForward(env.Id)
 		clusterId = env.ClusterId
 		selectedEnvId = env.Id
@@ -61,17 +64,20 @@ func (c *Controller) EnvironmentAccess(envId ...string) {
 
 }
 
+//sub-function of the `access` command called when using `kinto svs access`.
+//allows port-forwarding a particular service.
 func (c *Controller) ServiceAccess(envId string, blockId string) {
 
 	utils.CheckLogin()
 	utils.StartSpinner()
 	var blocksToForward []api.RemoteConfig
 
-	env := c.GetEnvFromId(envId)
+	env := c.GetEnvWithId(envId)
 
 	blocks, err := c.api.GetBlocks(env.Id)
 	if err != nil {
 		utils.TerminateWithError(err)
+		return
 	}
 	for _, block := range blocks {
 		if block.Id == blockId {
@@ -79,10 +85,10 @@ func (c *Controller) ServiceAccess(envId string, blockId string) {
 			latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)
 
 			if utils.CanPortForwardToRelease(latestRelease) &&
-				utils.CheckIfPortOpen(config.DefaultAccessPort, true) {
+				utils.CheckIfPortOpen(config.DefaultClientAccessPort, true) {
 				remote := api.RemoteConfig{
 					FromHost: "localhost",
-					FromPort: config.DefaultAccessPort,
+					FromPort: config.DefaultClientAccessPort,
 					ToHost:   block.Name,
 					ToPort:   utils.GetBlockPort(block.Name, latestRelease),
 				}

@@ -12,11 +12,16 @@ func (c *Controller) Environment() {
 	utils.CheckLogin()
 	utils.StartSpinner()
 
-	envs, err := c.api.GetClusterEnvironments()
-	clusters, err := c.api.GetClusters()
+	envs, er := c.api.GetClusterEnvironments()
+	if er != nil {
+		utils.TerminateWithError(er)
+		return
+	}
 
+	clusters, err := c.api.GetClusters()
 	if err != nil {
 		utils.TerminateWithError(err)
+		return
 	}
 
 	clusterDetail := make(map[string]string)

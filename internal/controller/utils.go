@@ -8,11 +8,13 @@ import (
 	"github.com/kintohub/kinto-cli/internal/utils"
 )
 
-func (c *Controller) GetEnvFromId(envId string) *types.ClusterEnvironment {
+//get env from its id
+func (c *Controller) GetEnvWithId(envId string) *types.ClusterEnvironment {
 
 	envs, err := c.api.GetClusterEnvironments()
 	if err != nil {
 		utils.TerminateWithError(err)
+		return nil
 	}
 
 	for _, env := range envs {
@@ -37,12 +39,14 @@ func (c *Controller) GetAvailableEnvNames(enableLocalGitCheck bool) []api.EnvDet
 	envs, err := c.api.GetClusterEnvironments()
 	if err != nil {
 		utils.TerminateWithError(err)
+		return nil
 	}
 
 	for _, env := range envs {
 		blocks, err := c.api.GetBlocks(env.Id)
 		if err != nil {
 			utils.TerminateWithError(err)
+			return nil
 		}
 
 		for _, block := range blocks {
@@ -50,14 +54,22 @@ func (c *Controller) GetAvailableEnvNames(enableLocalGitCheck bool) []api.EnvDet
 
 			if latestRelease != nil && enableLocalGitCheck &&
 				utils.CompareGitUrl(latestRelease.BuildConfig.Repository.Url) {
-				envDetails = append(envDetails, api.EnvDetails{EnvName: fmt.Sprintf(
-					"%d. %s", serialNumber, env.Name), EnvId: env.Id, ClusterId: env.ClusterId})
+				envDetails = append(
+					envDetails,
+					api.EnvDetails{
+						EnvName:   fmt.Sprintf("%d. %s", serialNumber, env.Name),
+						EnvId:     env.Id,
+						ClusterId: env.ClusterId})
 				serialNumber++
 				break
 
 			} else if latestRelease != nil && !enableLocalGitCheck {
-				envDetails = append(envDetails, api.EnvDetails{EnvName: fmt.Sprintf(
-					"%d. %s", serialNumber, env.Name), EnvId: env.Id, ClusterId: env.ClusterId})
+				envDetails = append(
+					envDetails,
+					api.EnvDetails{
+						EnvName:   fmt.Sprintf("%d. %s", serialNumber, env.Name),
+						EnvId:     env.Id,
+						ClusterId: env.ClusterId})
 				serialNumber++
 				break
 			}
@@ -74,6 +86,7 @@ func (c *Controller) GetAvailableEnvNames(enableLocalGitCheck bool) []api.EnvDet
 	return nil
 }
 
+//get list of services to port-forward
 func (c *Controller) GetBlocksToForward(envId string) []api.RemoteConfig {
 	var blocksToForward []api.RemoteConfig
 	count := 0
@@ -81,13 +94,14 @@ func (c *Controller) GetBlocksToForward(envId string) []api.RemoteConfig {
 	blocks, err := c.api.GetBlocks(envId)
 	if err != nil {
 		utils.TerminateWithError(err)
+		return nil
 	}
 
 	for _, block := range blocks {
 		latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)
 
 		if latestRelease != nil && utils.CanPortForwardToRelease(latestRelease) {
-			port := config.DefaultAccessPort + count
+			port := config.DefaultClientAccessPort + count
 
 			if utils.CheckIfPortOpen(port, true) {
 				remote := api.RemoteConfig{
@@ -106,6 +120,7 @@ func (c *Controller) GetBlocksToForward(envId string) []api.RemoteConfig {
 	return blocksToForward
 }
 
+//get list of services to teleport
 func (c *Controller) GetBlocksToTeleport(envId string) ([]api.RemoteConfig, string) {
 	utils.CheckLocalGitOrDie()
 	var blocksToForward []api.RemoteConfig
@@ -115,6 +130,7 @@ func (c *Controller) GetBlocksToTeleport(envId string) ([]api.RemoteConfig, stri
 	blocks, err := c.api.GetBlocks(envId)
 	if err != nil {
 		utils.TerminateWithError(err)
+		return nil, ""
 	}
 
 	for _, block := range blocks {
@@ -124,16 +140,18 @@ func (c *Controller) GetBlocksToTeleport(envId string) ([]api.RemoteConfig, stri
 
 			if utils.CompareGitUrl(latestRelease.BuildConfig.Repository.Url) {
 				remote := api.RemoteConfig{
-					FromHost: "R:0.0.0.0", // server listen to all interfaces
-					FromPort: 3000,        // https://github.com/kintohub/kinto-kube-core/blob/master/internal/store/kube/chisel.go#L35
-					ToHost:   "localhost",
-					ToPort:   config.DefaultTeleportPort, // TODO make it configurable, the user must run their local service on port 8080
+					FromHost: config.DefaultTeleportInterfacePort, // server listen to all interfaces
+					FromPort: 3000,
+					// https://github.com/kintohub/kinto-kube-core/blob/master/internal/store/kube/chisel.go#L35
+					ToHost: "localhost",
+					ToPort: config.DefaultClientTeleportPort,
+					// TODO make it configurable, the user must run their local service on port 8080
 				}
 				blocksToForward = append(blocksToForward, remote)
 				count++
 				blockNameToTeleport = block.Name
 			} else {
-				port := config.DefaultAccessPort + count
+				port := config.DefaultClientAccessPort + count
 				if utils.CheckIfPortOpen(port, true) {
 					remote := api.RemoteConfig{
 						FromHost: "localhost",

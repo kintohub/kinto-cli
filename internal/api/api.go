@@ -48,6 +48,7 @@ func (a *Api) getKubeCoreService(clusterId, envId string) types.KintoKubeCoreSer
 
 	if err != nil {
 		utils.TerminateWithError(err)
+		return nil
 	}
 
 	if service, ok := a.kubeCoreServiceClients[publicCluster.Id]; ok {
@@ -92,6 +93,7 @@ func createKintoKubeCoreClientOrDie(
 
 	if err != nil {
 		utils.TerminateWithError(err)
+		return nil
 	}
 
 	return types.NewKintoKubeCoreServiceClient(conn)

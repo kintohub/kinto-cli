@@ -21,6 +21,7 @@ func createTable() *tablewriter.Table {
 	return table
 }
 
+//get list of all services inside an environment
 func (c *Controller) Services(envId ...string) {
 
 	utils.StartSpinner()
@@ -34,6 +35,7 @@ func (c *Controller) Services(envId ...string) {
 
 		if err != nil {
 			utils.TerminateWithError(err)
+			return
 		}
 
 		if len(blocks) != 0 {
@@ -55,6 +57,7 @@ func (c *Controller) Services(envId ...string) {
 		envs, err := c.api.GetClusterEnvironments()
 		if err != nil {
 			utils.TerminateWithError(err)
+			return
 		}
 
 		for _, env := range envs {
@@ -82,6 +85,7 @@ func (c *Controller) showSelectedEnvServices(envId string) {
 	table := createTable()
 	if err != nil {
 		utils.TerminateWithError(err)
+		return
 	}
 
 	if len(blocks) != 0 {
