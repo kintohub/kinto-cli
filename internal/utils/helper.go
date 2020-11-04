@@ -13,7 +13,6 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
-	"time"
 )
 
 //Gets the latest successful release from any service
@@ -60,31 +59,22 @@ func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Relea
 	return latestRelease
 }
 
-//CheckPort takes a port number and checks if its available.
-//If available, will return the port as it is. If not, it will terminate the CLI with error.
-func CheckIfPortAvailable(port int) int {
+//Check if supplied port is open.
+func CheckIfPortOpen(port int, terminateOnError bool) bool {
 	address := fmt.Sprintf(":%d", port)
 	connection, err := net.Listen("tcp", address)
 	if err != nil {
-		TerminateWithCustomError(
-			fmt.Sprintf("Port %d is already in use. Please free it first!", port))
+		if terminateOnError {
+			TerminateWithCustomError(
+				fmt.Sprintf("Port %d is already in use. Please free it first!", port))
+		} else {
+			return false
+		}
+
 	} else {
 		_ = connection.Close()
 	}
-	return port
-}
-
-func CheckTeleportStatus(port int) bool {
-	time.Sleep(1 * time.Second)
-	address := fmt.Sprintf("0.0.0.0:%d", port)
-	connection, err := net.Listen("tcp", address)
-	if err != nil {
-		return false
-	} else {
-		_ = connection.Close()
-		return true
-	}
-
+	return true
 }
 
 // Check if Local Git Repo exists

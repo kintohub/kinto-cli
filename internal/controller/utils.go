@@ -50,14 +50,12 @@ func (c *Controller) GetAvailableEnvNames(enableLocalGitCheck bool) []api.EnvDet
 
 			if latestRelease != nil && enableLocalGitCheck &&
 				utils.CompareGitUrl(latestRelease.BuildConfig.Repository.Url) {
-
 				envDetails = append(envDetails, api.EnvDetails{EnvName: fmt.Sprintf(
 					"%d. %s", serialNumber, env.Name), EnvId: env.Id, ClusterId: env.ClusterId})
 				serialNumber++
 				break
 
 			} else if latestRelease != nil && !enableLocalGitCheck {
-
 				envDetails = append(envDetails, api.EnvDetails{EnvName: fmt.Sprintf(
 					"%d. %s", serialNumber, env.Name), EnvId: env.Id, ClusterId: env.ClusterId})
 				serialNumber++
@@ -89,15 +87,19 @@ func (c *Controller) GetBlocksToForward(envId string) []api.RemoteConfig {
 		latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)
 
 		if latestRelease != nil && utils.CanPortForwardToRelease(latestRelease) {
-			port := config.LocalPort + count
-			remote := api.RemoteConfig{
-				FromHost: "localhost",
-				FromPort: utils.CheckIfPortAvailable(port),
-				ToHost:   block.Name,
-				ToPort:   utils.GetBlockPort(block.Name, latestRelease),
+			port := config.DefaultAccessPort + count
+
+			if utils.CheckIfPortOpen(port, true) {
+				remote := api.RemoteConfig{
+					FromHost: "localhost",
+					FromPort: port,
+					ToHost:   block.Name,
+					ToPort:   utils.GetBlockPort(block.Name, latestRelease),
+				}
+				blocksToForward = append(blocksToForward, remote)
+				count += 1
 			}
-			blocksToForward = append(blocksToForward, remote)
-			count += 1
+
 		}
 	}
 
@@ -125,20 +127,24 @@ func (c *Controller) GetBlocksToTeleport(envId string) ([]api.RemoteConfig, stri
 					FromHost: "R:0.0.0.0", // server listen to all interfaces
 					FromPort: 3000,        // https://github.com/kintohub/kinto-kube-core/blob/master/internal/store/kube/chisel.go#L35
 					ToHost:   "localhost",
-					ToPort:   8080, // TODO make it configurable, the user must run their local service on port 8080
+					ToPort:   config.DefaultTeleportPort, // TODO make it configurable, the user must run their local service on port 8080
 				}
 				blocksToForward = append(blocksToForward, remote)
 				count++
 				blockNameToTeleport = block.Name
 			} else {
-				remote := api.RemoteConfig{
-					FromHost: "localhost",
-					FromPort: utils.CheckIfPortAvailable(config.LocalPort + count),
-					ToHost:   block.Name,
-					ToPort:   utils.GetBlockPort(block.Name, latestRelease),
+				port := config.DefaultAccessPort + count
+				if utils.CheckIfPortOpen(port, true) {
+					remote := api.RemoteConfig{
+						FromHost: "localhost",
+						FromPort: port,
+						ToHost:   block.Name,
+						ToPort:   utils.GetBlockPort(block.Name, latestRelease),
+					}
+					blocksToForward = append(blocksToForward, remote)
+					count++
 				}
-				blocksToForward = append(blocksToForward, remote)
-				count++
+
 			}
 		}
 	}

@@ -14,13 +14,14 @@ const (
 	publicClustersKey      = "publicClusters"
 	clusterEnvironmentsKey = "clusterEnvironments"
 	masterHostKey          = "masterHost"
-	//TODO: Remove once ports are on kkc run config for catalog.
-	LocalPort              = 5360
+	DefaultAccessPort      = 5360
+	DefaultTeleportPort    = 8080
 	RedisPort              = 6379
 	PostgresPort           = 5432
 	MongoPort              = 27017
 	MinioPort              = 9000
 	MysqlPort              = 3306
+	//TODO: Remove catalog ports once ports are on kkc run config.
 )
 
 var DefaultMasterHost = "master.us1.kintohub.com:443"

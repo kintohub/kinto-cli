@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	chclient "github.com/jpillora/chisel/client"
+	"github.com/kintohub/kinto-cli/internal/config"
 	"github.com/kintohub/kinto-cli/internal/types"
 	"github.com/kintohub/kinto-cli/internal/utils"
 	"io"
@@ -24,7 +25,7 @@ func (a *Api) StartAccess(blocksToForward []RemoteConfig, envId string, clusterI
 	if err != nil {
 		utils.TerminateWithError(err)
 	}
-	StartChisel(blocksToForward, streamResponse)
+	StartChisel(blocksToForward, streamResponse, false)
 
 }
 
@@ -41,11 +42,11 @@ func (a *Api) StartTeleport(blocksToForward []RemoteConfig, envId string, cluste
 		utils.TerminateWithError(err)
 	}
 
-	StartChisel(blocksToForward, streamResponse)
+	StartChisel(blocksToForward, streamResponse, true)
 
 }
 
-func StartChisel(blocksToForward []RemoteConfig, streamResponse types.KintoKubeCoreService_StartTeleportClient) {
+func StartChisel(blocksToForward []RemoteConfig, streamResponse types.KintoKubeCoreService_StartTeleportClient, isTeleport bool) {
 
 	host, err := streamResponse.Recv()
 
@@ -59,10 +60,14 @@ func StartChisel(blocksToForward []RemoteConfig, streamResponse types.KintoKubeC
 	var remotes []string
 
 	for _, remote := range blocksToForward {
-		remotes = append(
-			remotes,
-			fmt.Sprintf(
-				remote.FromHost+":"+strconv.Itoa(remote.FromPort)+":"+remote.ToHost+":"+strconv.Itoa(remote.ToPort)))
+		newRemote := fmt.Sprintf(
+			"%s:%s:%s:%s",
+			remote.FromHost,
+			strconv.Itoa(remote.FromPort),
+			remote.ToHost,
+			strconv.Itoa(remote.ToPort),
+		)
+		remotes = append(remotes, newRemote)
 	}
 
 	chiselClient, err := chclient.NewClient(&chclient.Config{
@@ -112,11 +117,18 @@ func StartChisel(blocksToForward []RemoteConfig, streamResponse types.KintoKubeC
 		utils.TerminateWithError(err)
 	}
 
-	fmt.Println("")
-	utils.WarningMessage("Please start your local server at PORT => 8080")
-
-	for utils.CheckTeleportStatus(8080) {
-		utils.StartSpinner()
+	//Show start server message only if teleporting
+	// For the lack of a better way, this is a temporary workaround for validating connection status
+	if isTeleport {
+		fmt.Println("")
+		//TODO: make teleport port configurable
+		utils.WarningMessage(
+			fmt.Sprintf("Please start your local server at PORT => %d",
+				config.DefaultTeleportPort))
+		for utils.CheckIfPortOpen(config.DefaultTeleportPort, false) {
+			time.Sleep(1 * time.Second)
+			utils.StartSpinner()
+		}
 	}
 
 	utils.StartSpinner()
