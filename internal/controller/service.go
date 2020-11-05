@@ -21,10 +21,7 @@ func createTable() *tablewriter.Table {
 	return table
 }
 
-// Services function returns all available services inside all available environments.
-// Is a variadic function. can have 0 or 1 args.
-// providing 0 args will show a selection screen prompting the user to select an environment.
-// providing 1 arg (that needs to be an ENV ID) will show services inside that environment.
+//get list of all services inside an environment
 func (c *Controller) Services(envId ...string) {
 
 	utils.StartSpinner()
@@ -38,6 +35,7 @@ func (c *Controller) Services(envId ...string) {
 
 		if err != nil {
 			utils.TerminateWithError(err)
+			return
 		}
 
 		if len(blocks) != 0 {
@@ -59,6 +57,7 @@ func (c *Controller) Services(envId ...string) {
 		envs, err := c.api.GetClusterEnvironments()
 		if err != nil {
 			utils.TerminateWithError(err)
+			return
 		}
 
 		for _, env := range envs {
@@ -69,7 +68,7 @@ func (c *Controller) Services(envId ...string) {
 
 		if len(envDetails) != 0 {
 			utils.StopSpinner()
-			selectedEnvId := SelectionPrompt(envDetails)
+			selectedEnvId, _ := SelectionPrompt(envDetails)
 			c.showSelectedEnvServices(selectedEnvId)
 
 		} else {
@@ -86,6 +85,7 @@ func (c *Controller) showSelectedEnvServices(envId string) {
 	table := createTable()
 	if err != nil {
 		utils.TerminateWithError(err)
+		return
 	}
 
 	if len(blocks) != 0 {

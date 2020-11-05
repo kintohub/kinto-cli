@@ -26,8 +26,9 @@ type RemoteConfig struct {
 }
 
 type EnvDetails struct {
-	EnvName string
-	EnvId   string
+	EnvName   string
+	EnvId     string
+	ClusterId string
 }
 
 func (a *accessTokenManager) GetRequestMetadata(ctx context.Context, args ...string) (map[string]string, error) {
@@ -35,9 +36,9 @@ func (a *accessTokenManager) GetRequestMetadata(ctx context.Context, args ...str
 	bearer := "Bearer " + config.GetAuthToken()
 	md := metadata.Pairs("Authorization", bearer)
 	clientDeadline := time.Now().Add(2 * time.Hour)
-	outgoingCtx, _ := context.WithDeadline(ctx, clientDeadline)
+	outgoingCtx, cancelFunc := context.WithDeadline(ctx, clientDeadline)
 	tokenCtx := metadata.NewOutgoingContext(outgoingCtx, md)
-
+	defer cancelFunc()
 	token, err := a.clustersClient.CreateAccessToken(tokenCtx, &types.CreateAccessTokenRequest{
 		ClusterId: a.clusterId,
 		EnvId:     a.envId,
@@ -45,6 +46,7 @@ func (a *accessTokenManager) GetRequestMetadata(ctx context.Context, args ...str
 
 	if err != nil {
 		utils.TerminateWithError(err)
+		return nil, nil
 	}
 
 	return map[string]string{

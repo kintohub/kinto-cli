@@ -1,0 +1,1 @@
+protoc -I . *.proto --go_out=plugins=grpc:../internal/types --go_opt=paths=source_relative

@@ -25,6 +25,12 @@ message DeployBlockRequest {
     string name = 2;
     RunConfig runConfig = 3;
     BuildConfig buildConfig = 4;
+    string baseReleaseId = 5;
+}
+
+message SuspendBlockRequest {
+    string envId = 1;
+    string name = 2;
 }
 
 message BlockQueryRequest {
@@ -123,6 +129,21 @@ message TeleportResponse {
     TeleportServiceData data = 1;
 }
 
+message TagReleaseRequest {
+    string blockName = 1;
+    string releaseId = 2;
+    string envId = 3;
+    string tag = 4;
+}
+
+message PromoteReleaseRequest {
+  string envId = 1;
+  string blockName = 2;
+  string tag = 3;
+  string releaseId = 4;
+  string targetEnvId = 5;
+}
+
 service KintoKubeCoreService {
     rpc CreateEnvironment (google.protobuf.Empty) returns (Environment) {}
     rpc GetEnvironment (EnvironmentQueryRequest) returns (Environment) {}
@@ -134,10 +155,12 @@ service KintoKubeCoreService {
     rpc GetBlocks (BlockQueryRequest) returns (Blocks) {}
     rpc GetBlock (BlockQueryRequest) returns (Block) {}
     rpc DeleteBlock (DeleteBlockRequest) returns (google.protobuf.Empty) {}
-    rpc SuspendBlock (BlockQueryRequest) returns (google.protobuf.Empty) {}
+    rpc SuspendBlock (SuspendBlockRequest) returns (BlockUpdateResponse) {}
     rpc WatchReleasesStatus (BlockQueryRequest) returns (stream ReleasesStatus) {}
     rpc KillBlockInstance (KillBlockInstanceRequest) returns (google.protobuf.Empty) {}
     rpc AbortRelease (AbortBlockReleaseRequest) returns (google.protobuf.Empty) {}
+    rpc TagRelease (TagReleaseRequest) returns (google.protobuf.Empty) {}
+    rpc PromoteRelease (PromoteReleaseRequest) returns (google.protobuf.Empty) {}
 
     rpc WatchBuildLogs (WatchBuildLogsRequest) returns (stream Logs) {}
     rpc UpdateBuildStatus(UpdateBuildStatusRequest) returns (UpdateBuildStatusResponse) {}

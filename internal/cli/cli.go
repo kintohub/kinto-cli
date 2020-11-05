@@ -25,7 +25,7 @@ func NewCliOrDie() CliInterface {
 		Use:   "kinto",
 		Short: "Kinto helps developers ship and iterate full stack apps with ease",
 		Long: `KintoHub comes with a complete suite of tools to build, deploy, debug and optimize apps.
-               Documentation is available at https://docs.kintohub.com`,
+Documentation is available at https://docs.kintohub.com`,
 	}
 
 	return &Cli{
@@ -47,7 +47,8 @@ func initConfig() {
 	}
 
 	// Search config in home directory with name "kinto.yaml"
-	const configName = "kinto.yaml"
+	// If it does not exists create one
+	const configName = config.CliConfigName
 	config.AddConfigPath(home)
 	config.SetConfigName(configName)
 	config.SetConfigType("yaml")
@@ -63,6 +64,7 @@ func (c *Cli) Execute(controller controller.ControllerInterface) {
 		createLoginCommand(controller),
 		createEnvironmentCommand(controller),
 		createServicesCommand(controller),
+		createAccessCommand(controller),
 		createTeleportCommand(controller),
 		createStatusCommand(controller),
 	)
@@ -75,8 +77,8 @@ func (c *Cli) Execute(controller controller.ControllerInterface) {
 func createInitCommand(controller controller.ControllerInterface) *cobra.Command {
 	initCmd := &cobra.Command{
 		Use:   "init",
-		Short: "Login to an existing KintoHub account",
-		Long:  `Helps you to log in an already existing KintoHub account`,
+		Short: "Init the CLI",
+		Long:  `Create a 'kinto.yaml' file in your home directory`,
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Init(args[0])
@@ -91,7 +93,7 @@ func createLoginCommand(controller controller.ControllerInterface) *cobra.Comman
 	return &cobra.Command{
 		Use:   "login",
 		Short: "Login to an existing KintoHub account",
-		Long:  `Helps you to log in an already existing KintoHub account`,
+		Long:  `Allows you to log into an already existing KintoHub account`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Login()
 		},
@@ -110,7 +112,7 @@ func createVersionCommand(controller controller.ControllerInterface) *cobra.Comm
 }
 
 func createEnvironmentCommand(controller controller.ControllerInterface) *cobra.Command {
-	return &cobra.Command{
+	envCmd := &cobra.Command{
 		Use:     "env",
 		Aliases: []string{"envs", "environment", "environments"},
 		Short:   "List all the Environment IDs and their regions",
@@ -119,43 +121,87 @@ func createEnvironmentCommand(controller controller.ControllerInterface) *cobra.
 			controller.Environment()
 		},
 	}
+
+	envCmd.AddCommand(createEnvironmentAccessCommand(controller))
+	return envCmd
+}
+
+func createEnvironmentAccessCommand(controller controller.ControllerInterface) *cobra.Command {
+	return &cobra.Command{
+		Use:     "access",
+		Aliases: []string{"envs", "environment", "environments"},
+		Short:   "Port-Forward services in an environment to your local machine",
+		Long:    `Port-Forward all the services in an environment to your local machine.`,
+		Args:    cobra.MaximumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			controller.EnvironmentAccess(args...)
+		},
+	}
 }
 
 func createServicesCommand(controller controller.ControllerInterface) *cobra.Command {
-	return &cobra.Command{
+	svsCmd := &cobra.Command{
 		Use:     "svs",
 		Aliases: []string{"service", "services"},
-		Short:   "List services",
+		Short:   "List your services",
 		Long:    `Get a list of all services within an environment`,
 		Args:    cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Services(args...)
 		},
 	}
+
+	svsCmd.AddCommand(createServiceAccessCommand(controller))
+	return svsCmd
+}
+
+func createServiceAccessCommand(controller controller.ControllerInterface) *cobra.Command {
+	return &cobra.Command{
+		Use:     "access",
+		Aliases: []string{"envs", "environment", "environments"},
+		Short:   "Port-Forward your services to your local machine",
+		Long:    `Port-Forward all services in your environment to your local machine. 
+Requires environment ID and service ID. This commands needs to be called from within a Git repo.`,
+		Args:    cobra.ExactArgs(2),
+		Run: func(cmd *cobra.Command, args []string) {
+			controller.ServiceAccess(args[0], args[1])
+		},
+	}
+}
+
+func createAccessCommand(controller controller.ControllerInterface) *cobra.Command {
+	accessCmd := &cobra.Command{
+		Use:   "access",
+		Short: "Port-forward your remote services to your local machine",
+		Run: func(cmd *cobra.Command, args []string) {
+			controller.Access()
+		},
+	}
+	return accessCmd
 }
 
 func createTeleportCommand(controller controller.ControllerInterface) *cobra.Command {
-	teleportCmd := &cobra.Command{
+	accessCmd := &cobra.Command{
 		Use:   "teleport",
-		Short: "Port-forward your remote services to your local machine",
+		Short: "Teleport into your remote services",
+		Long: `Teleport allows you to teleport your local setup into KintoHub.
+The teleported service's traffic will be redirected to your local machine and 
+the rest of the services will be port-forwarded.
+This commands needs to be called from within a Git repo.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			teleportAllFlag, _ := cmd.Flags().GetBool("all")
-			controller.Teleport(teleportAllFlag)
+			controller.Teleport()
 		},
 	}
-	teleportCmd.Flags().Bool("all", false,
-		"Allow accessing all envs without .git")
-
-	return teleportCmd
+	return accessCmd
 }
 
 func createStatusCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
 		Use: "status",
-		Short: `List environments & services where the current repo is deployed. 
-				This commands needs to be called from within a Git repo.`,
-		Long: `Get a list of all environments & services where the current Git repo is deployed to. 
-				This command should be run from within a Git repo.`,
+		Short: `List the environments on which the current local git repo is deployed.
+This commands needs to be called from within a Git repo.`,
+		Long: `Get a list of all the environments on which the current local git repo is deployed.
+This command should be run from within a Git repo.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Status()
 		},

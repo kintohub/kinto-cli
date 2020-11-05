@@ -8,22 +8,24 @@ import (
 	"github.com/kintohub/kinto-cli/internal/types"
 	"github.com/rs/zerolog/log"
 	"net"
-	"os"
-	"os/signal"
 	"strconv"
 	"strings"
-	"syscall"
 )
 
 //Gets the latest successful release from any service
 func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Release {
-	if releases == nil || len(releases) == 0 {
+	if releases == nil || len(releases) == 0 { //nolint:gosimple
 		return nil
 	}
 
 	var latestRelease *types.Release
 	for _, release := range releases {
-		if release.Status.State == types.Status_SUCCESS {
+		// filter release by only successfully deployed and with valid deployment type (exclude SUSPEND and UNDEPLOY)
+		// NOT_SET is included as well for backward compatibility
+		if release.Status.State == types.Status_SUCCESS &&
+			(release.Type == types.Release_ROLLBACK ||
+				release.Type == types.Release_DEPLOY ||
+				release.Type == types.Release_NOT_SET) {
 			if latestRelease == nil {
 				latestRelease = release
 				continue
@@ -33,8 +35,7 @@ func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Relea
 
 			if err != nil {
 				log.Error().Err(err).Msgf(
-					"cannot parse timestamp %v to time for release %v",
-					latestRelease.CreatedAt, latestRelease)
+					"cannot parse timestamp %v to time for release %v", latestRelease.CreatedAt, latestRelease)
 				continue
 			}
 
@@ -42,8 +43,7 @@ func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Relea
 
 			if err != nil {
 				log.Error().Err(err).Msgf(
-					"cannot parse timestamp %v to time for release %v",
-					release.CreatedAt, release)
+					"cannot parse timestamp %v to time for release %v", release.CreatedAt, release)
 				continue
 			}
 
@@ -56,24 +56,27 @@ func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Relea
 	return latestRelease
 }
 
-//CheckPort takes a port number and checks if its available.
-//If available, will return the port as it is. If not, it will terminate the CLI with error.
-func CheckPort(port int) int {
-
+//Check if supplied port is open. takes a bool param to either kill the cli on error or return false.
+//this is so as to reuse the fn for checking teleport connection status.
+func CheckIfPortOpened(port int, terminateOnError bool) bool {
 	address := fmt.Sprintf(":%d", port)
 	connection, err := net.Listen("tcp", address)
 	if err != nil {
-		TerminateWithCustomError(
-			fmt.Sprintf("Port %d is already in use. Please free it first!", port))
+		if terminateOnError {
+			TerminateWithCustomError(
+				fmt.Sprintf("Port %d is already in use. Please free it first!", port))
+		} else {
+			return false
+		}
+
 	} else {
 		_ = connection.Close()
 	}
-	return port
+	return true
 }
 
-// Check if Local Git Repo exists
+//check if Local Git Repo exists
 func CheckLocalGitOrDie() {
-
 	conf := goconf.New()
 	err := conf.Parse("./.git/config")
 	if err != nil {
@@ -82,7 +85,7 @@ func CheckLocalGitOrDie() {
 
 }
 
-//Compare passed URL with local git repo url
+//compare passed URL with local git repo url
 func CompareGitUrl(remoteGitUrl string) bool {
 	conf := goconf.New()
 	_ = conf.Parse("./.git/config")
@@ -97,35 +100,43 @@ func CompareGitUrl(remoteGitUrl string) bool {
 	}
 	localGitUrl = strings.Trim(localGitUrl, "= ")
 
-	if strings.Replace(remoteGitUrl, ".git", "", -1) == strings.Replace(localGitUrl, ".git", "", -1) {
-		return true
-	}
-	return false
+	return strings.Replace(remoteGitUrl, ".git", "", -1) ==
+		strings.Replace(localGitUrl, ".git", "", -1)
+
 }
 
-//Set default ports for services that are to be passed to chisel.
-//Special ports are specified for catalogs since the ports for them are not in buildconfig.
-//if the service has either of the given names occurring in the service name, it will return the specified port
-//otherwise will fetch the port from buildconfig and return it.
-func GetBlockPort(block *types.Block) int {
+//set ports for catalog services.
+//TODO : remove these once, catalog ports are available in run config
+func GetBlockPort(blockName string, release *types.Release) int {
 
-	if strings.Contains(block.Name, "redis") {
+	if strings.Contains(blockName, "redis") {
 		return config.RedisPort
-	} else if strings.Contains(block.Name, "postgres") {
+	} else if strings.Contains(blockName, "postgres") {
 		return config.PostgresPort
-	} else if strings.Contains(block.Name, "mongodb") {
+	} else if strings.Contains(blockName, "mongodb") {
 		return config.MongoPort
-	} else if strings.Contains(block.Name, "minio") {
+	} else if strings.Contains(blockName, "minio") {
 		return config.MinioPort
-	} else if strings.Contains(block.Name, "mysql") {
+	} else if strings.Contains(blockName, "mysql") {
 		return config.MysqlPort
 	} else {
-		resp := GetLatestSuccessfulRelease(block.Releases).RunConfig.Port
-		port, err := strconv.Atoi(resp)
+		port, err := strconv.Atoi(release.RunConfig.Port)
 		if err != nil {
 			TerminateWithError(err)
 		}
 		return port
+	}
+}
+
+//check if service is port-forwardable/teleportable or not.
+func CanPortForwardToRelease(release *types.Release) bool {
+	if release.RunConfig != nil &&
+		(release.RunConfig.Type == types.Block_BACKEND_API ||
+			release.RunConfig.Type == types.Block_WEB_APP ||
+			release.RunConfig.Type == types.Block_CATALOG) {
+		return true
+	} else {
+		return false
 	}
 }
 
@@ -137,13 +148,4 @@ func CheckLogin() {
 	if email == "" || token == "" {
 		TerminateWithCustomError("Please log-in into your account first")
 	}
-}
-
-func CloseCli() {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
-		TerminateWithCustomError("Aborted!")
-	}()
 }

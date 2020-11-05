@@ -15,7 +15,7 @@ func init() {
 	interval := 100 * time.Millisecond
 	s = spinner.New(style, interval)
 	s.HideCursor = true
-	s.Prefix = "Retrieving data... "
+	s.Prefix = "Please wait... "
 }
 
 func StartSpinner() {

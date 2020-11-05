@@ -17,6 +17,7 @@ func (c *Controller) Status() {
 
 	if err != nil {
 		utils.TerminateWithError(err)
+		return
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
@@ -32,6 +33,7 @@ func (c *Controller) Status() {
 		blocks, err := c.api.GetBlocks(env.Id)
 		if err != nil {
 			utils.TerminateWithError(err)
+			return
 		}
 		for _, block := range blocks {
 			latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)

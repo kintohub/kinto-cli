@@ -12,11 +12,16 @@ func (c *Controller) Environment() {
 	utils.CheckLogin()
 	utils.StartSpinner()
 
-	envs, err := c.api.GetClusterEnvironments()
-	clusters, err := c.api.GetClusters()
+	envs, er := c.api.GetClusterEnvironments()
+	if er != nil {
+		utils.TerminateWithError(er)
+		return
+	}
 
+	clusters, err := c.api.GetClusters()
 	if err != nil {
 		utils.TerminateWithError(err)
+		return
 	}
 
 	clusterDetail := make(map[string]string)
@@ -28,16 +33,19 @@ func (c *Controller) Environment() {
 	table.SetRowLine(true)
 	table.SetHeader([]string{
 		"Env Id",
+		"Cluster Id",
 		"Name",
 		"Region",
 	})
 	table.SetHeaderColor(tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
 		tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
 		tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor})
 
 	for _, c := range envs {
 		table.Append([]string{
 			c.Id,
+			c.ClusterId,
 			c.Name,
 			clusterDetail[c.ClusterId],
 		})

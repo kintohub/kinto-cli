@@ -22,7 +22,8 @@ type ApiInterface interface {
 	GetClusters() ([]*types.PublicClusterInfo, error)
 	Login(email, password string) (string, error)
 	GetBlocks(envId string) ([]*types.Block, error)
-	StartTeleport(blocksToForward []RemoteConfig, envId string, clusterId string)
+	StartAccess(blocksToForward []RemoteConfig, envId string, clusterId string)
+	StartTeleport(blocksToForward []RemoteConfig, envId string, clusterId string,blockName string)
 }
 
 // Due to the nature of APIs,
@@ -47,6 +48,7 @@ func (a *Api) getKubeCoreService(clusterId, envId string) types.KintoKubeCoreSer
 
 	if err != nil {
 		utils.TerminateWithError(err)
+		return nil
 	}
 
 	if service, ok := a.kubeCoreServiceClients[publicCluster.Id]; ok {
@@ -91,6 +93,7 @@ func createKintoKubeCoreClientOrDie(
 
 	if err != nil {
 		utils.TerminateWithError(err)
+		return nil
 	}
 
 	return types.NewKintoKubeCoreServiceClient(conn)

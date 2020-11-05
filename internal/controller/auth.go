@@ -46,6 +46,7 @@ func (c *Controller) Login() {
 
 	if err != nil {
 		utils.TerminateWithError(err)
+		return
 	}
 	email := config.GetEmail()
 
