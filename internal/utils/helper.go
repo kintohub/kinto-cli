@@ -58,7 +58,7 @@ func GetLatestSuccessfulRelease(releases map[string]*types.Release) *types.Relea
 
 //Check if supplied port is open. takes a bool param to either kill the cli on error or return false.
 //this is so as to reuse the fn for checking teleport connection status.
-func CheckIfPortOpen(port int, terminateOnError bool) bool {
+func CheckIfPortOpened(port int, terminateOnError bool) bool {
 	address := fmt.Sprintf(":%d", port)
 	connection, err := net.Listen("tcp", address)
 	if err != nil {

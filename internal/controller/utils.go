@@ -103,7 +103,7 @@ func (c *Controller) GetBlocksToForward(envId string) []api.RemoteConfig {
 		if latestRelease != nil && utils.CanPortForwardToRelease(latestRelease) {
 			port := config.DefaultClientAccessPort + count
 
-			if utils.CheckIfPortOpen(port, true) {
+			if utils.CheckIfPortOpened(port, true) {
 				remote := api.RemoteConfig{
 					FromHost: "localhost",
 					FromPort: port,
@@ -152,7 +152,7 @@ func (c *Controller) GetBlocksToTeleport(envId string) ([]api.RemoteConfig, stri
 				blockNameToTeleport = block.Name
 			} else {
 				port := config.DefaultClientAccessPort + count
-				if utils.CheckIfPortOpen(port, true) {
+				if utils.CheckIfPortOpened(port, true) {
 					remote := api.RemoteConfig{
 						FromHost: "localhost",
 						FromPort: port,

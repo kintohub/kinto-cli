@@ -85,7 +85,7 @@ func (c *Controller) ServiceAccess(envId string, blockId string) {
 			latestRelease := utils.GetLatestSuccessfulRelease(block.Releases)
 
 			if utils.CanPortForwardToRelease(latestRelease) &&
-				utils.CheckIfPortOpen(config.DefaultClientAccessPort, true) {
+				utils.CheckIfPortOpened(config.DefaultClientAccessPort, true) {
 				remote := api.RemoteConfig{
 					FromHost: "localhost",
 					FromPort: config.DefaultClientAccessPort,

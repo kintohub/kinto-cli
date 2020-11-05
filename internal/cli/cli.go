@@ -25,7 +25,7 @@ func NewCliOrDie() CliInterface {
 		Use:   "kinto",
 		Short: "Kinto helps developers ship and iterate full stack apps with ease",
 		Long: `KintoHub comes with a complete suite of tools to build, deploy, debug and optimize apps.
-               Documentation is available at https://docs.kintohub.com`,
+Documentation is available at https://docs.kintohub.com`,
 	}
 
 	return &Cli{
@@ -160,9 +160,9 @@ func createServiceAccessCommand(controller controller.ControllerInterface) *cobr
 		Use:     "access",
 		Aliases: []string{"envs", "environment", "environments"},
 		Short:   "Port-Forward your services to your local machine",
-		Long: `Port-Forward all services in you environment to your local machine. 
-               Requires environment ID and service ID. This commands needs to be called from within a Git repo.`,
-		Args: cobra.ExactArgs(2),
+		Long:    `Port-Forward all services in your environment to your local machine. 
+Requires environment ID and service ID. This commands needs to be called from within a Git repo.`,
+		Args:    cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.ServiceAccess(args[0], args[1])
 		},
@@ -184,10 +184,10 @@ func createTeleportCommand(controller controller.ControllerInterface) *cobra.Com
 	accessCmd := &cobra.Command{
 		Use:   "teleport",
 		Short: "Teleport into your remote services",
-		Long: `Teleport allows you to teleport your local setup into KintoHub. 
-               The teleported service's traffic will be redirected to your local machine and 
-               the rest of the services will be port-forwarded. 
-               This commands needs to be called from within a Git repo.`,
+		Long: `Teleport allows you to teleport your local setup into KintoHub.
+The teleported service's traffic will be redirected to your local machine and 
+the rest of the services will be port-forwarded.
+This commands needs to be called from within a Git repo.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Teleport()
 		},
@@ -198,10 +198,10 @@ func createTeleportCommand(controller controller.ControllerInterface) *cobra.Com
 func createStatusCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
 		Use: "status",
-		Short: `List environments & services where the current repo is deployed. 
-                This commands needs to be called from within a Git repo.`,
-		Long: `Get a list of all environments & services where the current Git repo is deployed to. 
-               This command should be run from within a Git repo.`,
+		Short: `List the environments on which the current local git repo is deployed.
+This commands needs to be called from within a Git repo.`,
+		Long: `Get a list of all the environments on which the current local git repo is deployed.
+This command should be run from within a Git repo.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			controller.Status()
 		},

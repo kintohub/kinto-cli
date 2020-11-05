@@ -157,7 +157,7 @@ func StartChisel(blocksToForward []RemoteConfig,
 		utils.WarningMessage(fmt.Sprintf(
 			"Please start your local server at PORT => %d", config.DefaultClientTeleportPort))
 
-		for utils.CheckIfPortOpen(config.DefaultClientTeleportPort, false) {
+		for utils.CheckIfPortOpened(config.DefaultClientTeleportPort, false) {
 			utils.StartSpinner()
 			time.Sleep(1 * time.Second)
 		}
