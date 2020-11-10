@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	CliConfigName                    = "kinto.yaml"
+	CliConfigName                = "kinto.yaml"
 	authTokenKey                 = "authToken"
 	emailKey                     = "emailKey"
 	publicClustersKey            = "publicClusters"

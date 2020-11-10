@@ -112,6 +112,7 @@ func StartChisel(blocksToForward []RemoteConfig,
 	}()
 
 	chiselClient.Logger.Info = false
+	chiselClient.Logger.Debug = true
 
 	fmt.Println("")
 	utils.InfoMessage("Starting Tunnel")
