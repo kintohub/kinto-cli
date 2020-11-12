@@ -90,7 +90,7 @@ func (c *Controller) ServiceAccess(envId string, blockId string) {
 					FromHost: "localhost",
 					FromPort: config.DefaultClientAccessPort,
 					ToHost:   block.Name,
-					ToPort:   utils.GetBlockPort(block.Name, latestRelease),
+					ToPort:   utils.GetBlockPort(block.Name),
 				}
 				blocksToForward = append(blocksToForward, remote)
 			}

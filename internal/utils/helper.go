@@ -8,7 +8,6 @@ import (
 	"github.com/kintohub/kinto-cli/internal/types"
 	"github.com/rs/zerolog/log"
 	"net"
-	"strconv"
 	"strings"
 )
 
@@ -107,7 +106,7 @@ func CompareGitUrl(remoteGitUrl string) bool {
 
 //set ports for catalog services.
 //TODO : remove these once, catalog ports are available in run config
-func GetBlockPort(blockName string, release *types.Release) int {
+func GetBlockPort(blockName string) int {
 
 	if strings.Contains(blockName, "redis") {
 		return config.RedisPort
@@ -120,11 +119,7 @@ func GetBlockPort(blockName string, release *types.Release) int {
 	} else if strings.Contains(blockName, "mysql") {
 		return config.MysqlPort
 	} else {
-		port, err := strconv.Atoi(release.RunConfig.Port)
-		if err != nil {
-			TerminateWithError(err)
-		}
-		return port
+		return 80 // every kintobub service is listening on their port + port 80
 	}
 }
 

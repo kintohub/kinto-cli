@@ -108,7 +108,7 @@ func (c *Controller) GetBlocksToForward(envId string) []api.RemoteConfig {
 					FromHost: "localhost",
 					FromPort: port,
 					ToHost:   block.Name,
-					ToPort:   80, // every kintobub service is listening on their port + port 80
+					ToPort:   utils.GetBlockPort(block.Name),
 				}
 				blocksToForward = append(blocksToForward, remote)
 				count += 1
@@ -157,7 +157,7 @@ func (c *Controller) GetBlocksToTeleport(envId string) ([]api.RemoteConfig, stri
 						FromHost: "localhost",
 						FromPort: port,
 						ToHost:   block.Name,
-						ToPort:   utils.GetBlockPort(block.Name, latestRelease),
+						ToPort:   utils.GetBlockPort(block.Name),
 					}
 					blocksToForward = append(blocksToForward, remote)
 					count++
