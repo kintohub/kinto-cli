@@ -198,8 +198,7 @@ This commands needs to be called from within a Git repo.`,
 func createStatusCommand(controller controller.ControllerInterface) *cobra.Command {
 	return &cobra.Command{
 		Use: "status",
-		Short: `List the environments on which the current local git repo is deployed.
-This commands needs to be called from within a Git repo.`,
+		Short: `List the environments on which the current local git repo is deployed.`,
 		Long: `Get a list of all the environments on which the current local git repo is deployed.
 This command should be run from within a Git repo.`,
 		Run: func(cmd *cobra.Command, args []string) {
