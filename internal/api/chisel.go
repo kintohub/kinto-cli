@@ -112,7 +112,7 @@ func StartChisel(blocksToForward []RemoteConfig,
 	}()
 
 	chiselClient.Logger.Info = false
-	chiselClient.Logger.Debug = true
+	chiselClient.Logger.Debug = false
 
 	fmt.Println("")
 	utils.InfoMessage("Starting Tunnel")
@@ -158,13 +158,13 @@ func StartChisel(blocksToForward []RemoteConfig,
 		utils.WarningMessage(fmt.Sprintf(
 			"Please start your local server at PORT => %d", config.DefaultClientTeleportPort))
 
+		utils.StartSpinner("Waiting for User to start local server... ")
 		for utils.CheckIfPortOpened(config.DefaultClientTeleportPort, false) {
-			utils.StartSpinner()
 			time.Sleep(1 * time.Second)
 		}
 	}
 
-	utils.StartSpinner()
+	utils.StopSpinner()
 	utils.SuccessMessage("Connected!")
 	fmt.Println("")
 
