@@ -15,10 +15,14 @@ func init() {
 	interval := 100 * time.Millisecond
 	s = spinner.New(style, interval)
 	s.HideCursor = true
-	s.Prefix = "Please wait... "
 }
 
-func StartSpinner() {
+func StartSpinner(message ...string) {
+	if len(message) > 0 {
+		s.Prefix = message[0]
+	} else {
+		s.Prefix = "Retrieving data... "
+	}
 	s.Start()
 }
 
