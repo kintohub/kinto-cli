@@ -18,7 +18,7 @@ jobs:
           go-version: ${{ matrix.go_version }}
 
       - name: Set CLI_VERSION
-        run: echo ::set-env name=CLI_VERSION::$(echo ${GITHUB_REF} | rev | cut -d'/' -f 1 | rev )
+        run: echo "CLI_VERSION=$(echo ${GITHUB_REF} | rev | cut -d'/' -f 1 | rev )" >> $GITHUB_ENV
 
       - name: Configure & Build
         uses: crazy-max/ghaction-xgo@v1
